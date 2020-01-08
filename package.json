@@ -1,0 +1,54 @@
+{
+  "name": "team-sweeper",
+  "version": "1.0.0",
+  "description": "Team Sweeper is an online multiplayer minesweeper clone for when you want the classic minesweeper experience with a social aspect.",
+  "main": "index.js",
+  "scripts": {
+    "start-dev": "npm-run-all --parallel build-client build-styles dev-server",
+    "build-client": "webpack --watch",
+    "build-styles": "sass --watch client/src/style.scss client/dist/style.css",
+    "dev-server": "nodemon server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gabe-Lee/team-sweeper.git"
+  },
+  "keywords": [
+    "Minesweeper"
+  ],
+  "author": "Gabriel Anderson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Gabe-Lee/team-sweeper/issues"
+  },
+  "homepage": "https://github.com/Gabe-Lee/team-sweeper#readme",
+  "dependencies": {
+    "axios": "^0.19.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "mongoose": "^4.13.20",
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/preset-env": "^7.7.7",
+    "@babel/preset-react": "^7.7.4",
+    "babel-loader": "^8.0.6",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
+    "nodemon": "^2.0.2",
+    "npm-run-all": "^4.1.5",
+    "sass": "^1.24.3",
+    "source-map-loader": "^0.2.4",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  }
+}
