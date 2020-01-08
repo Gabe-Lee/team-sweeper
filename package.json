@@ -4,8 +4,9 @@
   "description": "Team Sweeper is an online multiplayer minesweeper clone for when you want the classic minesweeper experience with a social aspect.",
   "main": "index.js",
   "scripts": {
-    "start-dev": "npm-run-all --parallel build-client build-styles dev-server",
-    "build-client": "webpack --watch",
+    "start-dev": "npm-run-all --parallel build-client-dev build-styles dev-server",
+    "build-client-dev": "webpack --mode=development --watch",
+    "build-client-prod": "webpack --mode=production",
     "build-styles": "sass --watch client/src/style.scss client/dist/style.css",
     "dev-server": "nodemon server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -26,7 +27,6 @@
   "dependencies": {
     "axios": "^0.19.1",
     "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "mongoose": "^4.13.20",

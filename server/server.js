@@ -1,10 +1,9 @@
 const express = require('express');
 const expressWs = require('express-ws');
 const cors = require('cors')();
-const path = require('path');
 
 const json = express.json();
-const serveClient = express.static(path.resolve(__dirname, 'client/dist'));
+const serveClient = express.static('client/dist');
 const server = express();
 // eslint-disable-next-line no-unused-vars
 const serverWs = expressWs(server);

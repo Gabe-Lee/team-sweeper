@@ -1,8 +1,8 @@
 const server = require('./server');
-require('dotenv').config();
+const { local } = require('../env');
 
-const PORT = process.env.PORT || process.env.LOCAL_PORT;
+const PORT = process.env.PORT || local.env.PORT;
 
 server.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
+  console.log(`Server is listening at ${local.env.URL}`);
 });

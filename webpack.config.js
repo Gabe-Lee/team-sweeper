@@ -12,7 +12,6 @@ module.exports = {
   devServer: {
     contentBase: './client/dist',
   },
-  mode: 'production',
   devtool: 'source-map',
   module: {
     rules: [
