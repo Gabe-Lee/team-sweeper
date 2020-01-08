@@ -1,6 +1,7 @@
 dependencies:
   axios: 0.19.1
   cors: 2.8.5
+  dotenv: 8.2.0
   express: 4.17.1
   express-ws: 4.0.0_express@4.17.1
   mongoose: 4.13.20
@@ -2014,6 +2015,12 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-tUMXrxlExSW6U2EXiiKGSBVdYgtV8qlHL+C10TsW4PURY/ic+eaysnSkwB4kA/mBlCyy/IKDJ+Lc3wbWeaXtuQ==
+  /dotenv/8.2.0:
+    dev: false
+    engines:
+      node: '>=8'
+    resolution:
+      integrity: sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
   /duplexer3/0.1.4:
     dev: true
     resolution:
@@ -6001,6 +6008,7 @@ specifiers:
   axios: ^0.19.1
   babel-loader: ^8.0.6
   cors: ^2.8.5
+  dotenv: ^8.2.0
   eslint: ^6.8.0
   eslint-config-airbnb: ^18.0.1
   eslint-plugin-import: ^2.19.1
