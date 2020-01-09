@@ -3,10 +3,10 @@ $FLAG_COLOR: #f00;
 $NEAR_COLOR_1: #00c;
 $NEAR_COLOR_2: #069;
 $NEAR_COLOR_3: #096;
-$NEAR_COLOR_4: #0c0;
-$NEAR_COLOR_5: #690;
-$NEAR_COLOR_6: #960;
-$NEAR_COLOR_7: #c00;
+$NEAR_COLOR_4: #0a0;
+$NEAR_COLOR_5: #990;
+$NEAR_COLOR_6: #a70;
+$NEAR_COLOR_7: #b00;
 $NEAR_COLOR_8: #906;
 $NEAR_COLOR_9: #609;
 $NEAR_COLOR_10: #306;
@@ -29,11 +29,13 @@ $MAX_WIDTH: 1200px;
       display: grid;
       border: 2px solid $UNSET_BORDER;
       .space {
+        padding: 0;
         min-width: 100%;
         min-height: 100%;
         background-color: $SPACE_FILL;
         border: 2px outset $OUTSET_BORDER;
         border-radius: none;
+        font-size: 1rem;
         &:disabled {
           border: 1px solid $UNSET_BORDER;
         }
@@ -43,7 +45,7 @@ $MAX_WIDTH: 1200px;
         .symbol {
           font-weight: bold;
           font-family: "Noto Sans";
-          &.mines_-3 { color: $MINE_COLOR }
+          &.mines_-3 { color: $MINE_COLOR; }
           &.mines_-2 { color: $FLAG_COLOR }
           &.mines_-1 { color: none }
           &.mines_0 { color: none }
