@@ -2,10 +2,10 @@ const { MersenneTwister19937, bool } = require('random-js');
 
 const randEngine = MersenneTwister19937.autoSeed();
 
-export default class SweeperGame {
+class SweeperGame {
   constructor(size = 10, density = 50) {
-    this.size = Math.min(size, 1);
-    this.density = Math.max(Math.min(density, 1), 99);
+    this.size = Math.max(size, 1);
+    this.density = Math.min(Math.max(density, 1), 99);
     this.board = [];
     this.visible = [];
     this.flags = [];
@@ -17,14 +17,15 @@ export default class SweeperGame {
     this.randBool = () => this.randDist(randEngine);
     for (let y = 0; y < this.size; y += 1) {
       this.board.push([]);
-      this.visible.push([])
+      this.visible.push([]);
+      this.flags.push([]);
       for (let x = 0; x < this.size; x += 1) {
         let hasMine = this.randBool();
         this.mineCount += hasMine ? 1 : 0;
         this.safeCount -= hasMine ? 1 : 0;
-        this.board.push(hasMine ? -3 : 0);
-        this.visible.push(false);
-        this.flags.push({});
+        this.board[y].push(hasMine ? -3 : 0);
+        this.visible[y].push(false);
+        this.flags[y].push({ players: [], total: 0 });
       }
     }
     const edgeStarts = [];
@@ -34,9 +35,9 @@ export default class SweeperGame {
       for (let x = 0; x < this.size; x += 1) {
         if (this.board[y][x] !== -3) {
           for (let n = 0; n < SweeperGame.neighbors.length; n += 1) {
-            const yy = y + SweeperGame.neighbors[0];
-            const xx = x + SweeperGame.neighbors[1];
-            if (this.board[yy][xx] === -3) {
+            const yy = y + SweeperGame.neighbors[n][0];
+            const xx = x + SweeperGame.neighbors[n][1];
+            if (xx >= 0 && xx < this.size && yy >= 0 && yy < this.size && this.board[yy][xx] === -3) {
               this.board[y][x] += 1;
             }
           }
@@ -52,8 +53,8 @@ export default class SweeperGame {
         }
       }
     }
-    const start;
-    const reveal = true;
+    let start = [0, 0];
+    let reveal = true;
     if (edgeStarts.length > 0) {
       start = Math.floor(Math.random() * edgeStarts.length);
     } else if (centerStarts > 0) {
@@ -64,8 +65,8 @@ export default class SweeperGame {
     }
     if (reveal) {
       for (let n = 0; n < SweeperGame.neighbors.length; n += 1) {
-        const yy = start[0] + SweeperGame.neighbors[0];
-        const xx = start[1] + SweeperGame.neighbors[1];
+        const yy = start[0] + SweeperGame.neighbors[n][0];
+        const xx = start[1] + SweeperGame.neighbors[n][1];
         if (xx >= 0 && xx < this.size && yy >= 0 && yy < this.size) {
           this.visible[yy][xx] = true;
         }
@@ -86,10 +87,12 @@ export default class SweeperGame {
   }
 
   sweepPosition(y, x, player = 'anon') {
+    console.log(y, x, player)
     if (!this.playerIsAlive(player)) return -1;
     this.visible[y][x] = true;
     const wasMine = this.board[y][x] === -3;
     this.players[player] = !wasMine;
+    this.deaths += wasMine ? 1 : 0;
     this.safeCount -= wasMine ? 0 : 1;
     return this.board[y][x];
   }
@@ -99,4 +102,23 @@ export default class SweeperGame {
     this.flags[y][x].players[player] = this.flags[y][x].players[player] === undefined ? true : !this.flags[y][x].players[player];
     this.flags[y][x].total += this.flags[y][x].players[player] ? 1 : -1;
   }
+
+  getVisibleBoard() {
+    const visBoard = []
+    for (let y = 0; y < this.size; y += 1) {
+      visBoard[y] = [];
+      for (let x = 0; x < this.size; x += 1) {
+        if (this.visible[y][x]) {
+          visBoard[y][x] = this.board[y][x];
+        } else if (this.flags[y][x].total > 0) {
+          visBoard[y][x] = -2;
+        } else {
+          visBoard[y][x] = -1;
+        }
+      }
+    }
+    return visBoard;
+  }
 }
+
+module.exports = SweeperGame;
