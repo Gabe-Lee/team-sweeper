@@ -14,7 +14,20 @@ server.use(json);
 server.use('/', serveClient);
 
 server.ws('/game', (ws, req) => {
-  ws.send('You connected to server!');
+  ws.send(JSON.stringify({
+    type: 'NEW_GAME',
+    data: {
+      board: [
+        [-1,-1, 1, 0, 0],
+        [-1, 3, 1, 0, 0],
+        [ 1, 1, 0, 0, 0],
+        [ 0, 0, 0, 1, 1],
+        [ 0, 0, 0, 1,-2],
+      ],
+      mines: 3,
+      timer: 600000,
+    }
+  }));
   ws.on('message', (data) => {
     ws.send(`You sent: ${data}`);
     if (data === 'kill') {

@@ -1,0 +1,50 @@
+$MINE_COLOR: #111;
+$FLAG_COLOR: #f00;
+$NEAR_COLOR_1: #00c;
+$NEAR_COLOR_2: #069;
+$NEAR_COLOR_3: #096;
+$NEAR_COLOR_4: #0c0;
+$NEAR_COLOR_5: #690;
+$NEAR_COLOR_6: #960;
+$NEAR_COLOR_7: #c00;
+$NEAR_COLOR_8: #906;
+$NEAR_COLOR_9: #609;
+$NEAR_COLOR_10: #306;
+$NEAR_COLOR_11: #000;
+$NEAR_COLOR_12: #fff;
+
+$MAX_WIDTH: 1200px;
+
+#app-root {
+  .app {
+    max-width: $MAX_WIDTH;
+    width: 100vmin;
+    height: auto;
+    margin: 0 auto;
+    .board {
+      display: grid;
+      .space {
+        min-width: 100%;
+        min-height: 100%;
+        .symbol {
+          &.mines_-3 { color: $MINE_COLOR }
+          &.mines_-2 { color: $FLAG_COLOR }
+          &.mines_-1 { color: none }
+          &.mines_0 { color: none }
+          &.mines_1 { color: $NEAR_COLOR_1 }
+          &.mines_2 { color: $NEAR_COLOR_2 }
+          &.mines_3 { color: $NEAR_COLOR_3 }
+          &.mines_4 { color: $NEAR_COLOR_4 }
+          &.mines_5 { color: $NEAR_COLOR_5 }
+          &.mines_6 { color: $NEAR_COLOR_6 }
+          &.mines_7 { color: $NEAR_COLOR_7 }
+          &.mines_8 { color: $NEAR_COLOR_8 }
+          &.mines_9 { color: $NEAR_COLOR_9 }
+          &.mines_10 { color: $NEAR_COLOR_10 }
+          &.mines_11 { color: $NEAR_COLOR_11 }
+          &.mines_12 { color: $NEAR_COLOR_12 }
+        }
+      }
+    }
+  }
+}

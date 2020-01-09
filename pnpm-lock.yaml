@@ -9,15 +9,17 @@ dependencies:
   react-dom: 16.12.0_react@16.12.0
 devDependencies:
   '@babel/core': 7.7.7
+  '@babel/plugin-proposal-class-properties': 7.7.4_@babel+core@7.7.7
   '@babel/preset-env': 7.7.7_@babel+core@7.7.7
   '@babel/preset-react': 7.7.4_@babel+core@7.7.7
+  babel-eslint: 10.0.3_eslint@6.8.0
   babel-loader: 8.0.6_@babel+core@7.7.7+webpack@4.41.5
   eslint: 6.8.0
-  eslint-config-airbnb: 18.0.1_05eda38148720206d7c9280ea5caa448
+  eslint-config-airbnb: 18.0.1_9dcdb1f9469b7b0fc6f9fc1d09140c11
   eslint-plugin-import: 2.19.1_eslint@6.8.0
   eslint-plugin-jsx-a11y: 6.2.3_eslint@6.8.0
   eslint-plugin-react: 7.17.0_eslint@6.8.0
-  eslint-plugin-react-hooks: 2.3.0_eslint@6.8.0
+  eslint-plugin-react-hooks: 1.7.0_eslint@6.8.0
   nodemon: 2.0.2
   npm-run-all: 4.1.5
   sass: 1.24.3
@@ -90,6 +92,20 @@ packages:
     dev: true
     resolution:
       integrity: sha512-8JH9/B7J7tCYJ2PpWVpw9JhPuEVHztagNVuQAFBVFYluRMlpG7F1CgKEgGeL6KFqcsIa92ZYVj6DSc0XwmN1ZA==
+  /@babel/helper-create-class-features-plugin/7.7.4_@babel+core@7.7.7:
+    dependencies:
+      '@babel/core': 7.7.7
+      '@babel/helper-function-name': 7.7.4
+      '@babel/helper-member-expression-to-functions': 7.7.4
+      '@babel/helper-optimise-call-expression': 7.7.4
+      '@babel/helper-plugin-utils': 7.0.0
+      '@babel/helper-replace-supers': 7.7.4
+      '@babel/helper-split-export-declaration': 7.7.4
+    dev: true
+    peerDependencies:
+      '@babel/core': ^7.0.0
+    resolution:
+      integrity: sha512-l+OnKACG4uiDHQ/aJT8dwpR+LhCJALxL0mJ6nzjB25e5IPwqV1VOsY7ah6UB1DG+VOXAIMtuC54rFJGiHkxjgA==
   /@babel/helper-create-regexp-features-plugin/7.7.4_@babel+core@7.7.7:
     dependencies:
       '@babel/core': 7.7.7
@@ -249,6 +265,16 @@ packages:
       '@babel/core': ^7.0.0-0
     resolution:
       integrity: sha512-1ypyZvGRXriY/QP668+s8sFr2mqinhkRDMPSQLNghCQE+GAkFtp+wkHVvg2+Hdki8gwP+NFzJBJ/N1BfzCCDEw==
+  /@babel/plugin-proposal-class-properties/7.7.4_@babel+core@7.7.7:
+    dependencies:
+      '@babel/core': 7.7.7
+      '@babel/helper-create-class-features-plugin': 7.7.4_@babel+core@7.7.7
+      '@babel/helper-plugin-utils': 7.0.0
+    dev: true
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    resolution:
+      integrity: sha512-EcuXeV4Hv1X3+Q1TsuOmyyxeTRiSqurGJ26+I/FW1WbymmRRapVORm6x1Zl3iDIHyRxEs+VXWp6qnlcfcJSbbw==
   /@babel/plugin-proposal-dynamic-import/7.7.4_@babel+core@7.7.7:
     dependencies:
       '@babel/core': 7.7.7
@@ -1215,6 +1241,22 @@ packages:
       eslint: ^5 || ^6
     resolution:
       integrity: sha512-lF98xa/yvy6j3fBHAgQXIYl+J4eZadOSqsPojemUqClzNbBV38wWGpUbQbVEyf4eUF5yF7eHmGgGA2JiHyjeqw==
+  /babel-eslint/10.0.3_eslint@6.8.0:
+    dependencies:
+      '@babel/code-frame': 7.5.5
+      '@babel/parser': 7.7.7
+      '@babel/traverse': 7.7.4
+      '@babel/types': 7.7.4
+      eslint: 6.8.0
+      eslint-visitor-keys: 1.1.0
+      resolve: 1.14.2
+    dev: true
+    engines:
+      node: '>=6'
+    peerDependencies:
+      eslint: '>= 4.12.1'
+    resolution:
+      integrity: sha512-z3U7eMY6r/3f3/JB9mTsLjyxrv0Yb1zb8PCWCLpguxfCzBIZUwy23R1t/XKewP+8mEN2Ck8Dtr4q20z6ce6SoA==
   /babel-loader/8.0.6_@babel+core@7.7.7+webpack@4.41.5:
     dependencies:
       '@babel/core': 7.7.7
@@ -2163,14 +2205,14 @@ packages:
       eslint-plugin-import: ^2.18.2
     resolution:
       integrity: sha512-2IDHobw97upExLmsebhtfoD3NAKhV4H0CJWP3Uprd/uk+cHuWYOczPVxQ8PxLFUAw7o3Th1RAU8u1DoUpr+cMA==
-  /eslint-config-airbnb/18.0.1_05eda38148720206d7c9280ea5caa448:
+  /eslint-config-airbnb/18.0.1_9dcdb1f9469b7b0fc6f9fc1d09140c11:
     dependencies:
       eslint: 6.8.0
       eslint-config-airbnb-base: 14.0.0_299a254f64ebbbcc1b645d4839412a08
       eslint-plugin-import: 2.19.1_eslint@6.8.0
       eslint-plugin-jsx-a11y: 6.2.3_eslint@6.8.0
       eslint-plugin-react: 7.17.0_eslint@6.8.0
-      eslint-plugin-react-hooks: 2.3.0_eslint@6.8.0
+      eslint-plugin-react-hooks: 1.7.0_eslint@6.8.0
       object.assign: 4.1.0
       object.entries: 1.1.1
     dev: true
@@ -2251,7 +2293,7 @@ packages:
       eslint: ^3 || ^4 || ^5 || ^6
     resolution:
       integrity: sha512-CawzfGt9w83tyuVekn0GDPU9ytYtxyxyFZ3aSWROmnRRFQFT2BiPJd7jvRdzNDi6oLWaS2asMeYSNMjWTV4eNg==
-  /eslint-plugin-react-hooks/2.3.0_eslint@6.8.0:
+  /eslint-plugin-react-hooks/1.7.0_eslint@6.8.0:
     dependencies:
       eslint: 6.8.0
     dev: true
@@ -2260,7 +2302,7 @@ packages:
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0
     resolution:
-      integrity: sha512-gLKCa52G4ee7uXzdLiorca7JIQZPPXRAQDXV83J4bUEeUuc5pIEyZYAZ45Xnxe5IuupxEqHS+hUhSLIimK1EMw==
+      integrity: sha512-iXTCFcOmlWvw4+TOE8CLWj6yX1GwzT0Y6cUfHHZqWnSk144VmVIRcVGtUAzrLES7C798lmvnt02C7rxaOX1HNA==
   /eslint-plugin-react/7.17.0_eslint@6.8.0:
     dependencies:
       array-includes: 3.1.1
@@ -5996,9 +6038,11 @@ packages:
       integrity: sha512-HG/DWAJa1PAnHT9JAhNa8AbAv3FPaiLzioSjCcmuXXhP8MlpHO5vwls4g4j6n30Z74GVQj8Xa62dWVx1QCGklg==
 specifiers:
   '@babel/core': ^7.7.7
+  '@babel/plugin-proposal-class-properties': ^7.7.4
   '@babel/preset-env': ^7.7.7
   '@babel/preset-react': ^7.7.4
   axios: ^0.19.1
+  babel-eslint: ^10.0.3
   babel-loader: ^8.0.6
   cors: ^2.8.5
   eslint: ^6.8.0
@@ -6006,7 +6050,7 @@ specifiers:
   eslint-plugin-import: ^2.19.1
   eslint-plugin-jsx-a11y: ^6.2.3
   eslint-plugin-react: ^7.17.0
-  eslint-plugin-react-hooks: ^2.3.0
+  eslint-plugin-react-hooks: ^1.7.0
   express: ^4.17.1
   express-ws: ^4.0.0
   mongoose: ^4.13.20
