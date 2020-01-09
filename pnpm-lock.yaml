@@ -5,6 +5,7 @@ dependencies:
   express-ws: 4.0.0_express@4.17.1
   mongoose: 4.13.20
   prop-types: 15.7.2
+  random-js: 2.1.0
   react: 16.12.0
   react-dom: 16.12.0_react@16.12.0
 devDependencies:
@@ -4659,6 +4660,10 @@ packages:
       node: '>=0.4.x'
     resolution:
       integrity: sha1-sgmEkgO7Jd+CDadW50cAWHhSFiA=
+  /random-js/2.1.0:
+    dev: false
+    resolution:
+      integrity: sha512-CRUyWmnzmZBA7RZSVGq0xMqmgCyPPxbiKNLFA5ud7KenojVX2s7Gv+V7eB52beKTPGxWRnVZ7D/tCIgYJJ8vNQ==
   /randombytes/2.1.0:
     dependencies:
       safe-buffer: 5.2.0
@@ -6057,6 +6062,7 @@ specifiers:
   nodemon: ^2.0.2
   npm-run-all: ^4.1.5
   prop-types: ^15.7.2
+  random-js: ^2.1.0
   react: ^16.12.0
   react-dom: ^16.12.0
   sass: ^1.24.3

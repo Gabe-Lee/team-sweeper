@@ -45,7 +45,7 @@ $MAX_WIDTH: 1200px;
         .symbol {
           font-weight: bold;
           font-family: "Noto Sans";
-          &.mines_-3 { color: $MINE_COLOR; }
+          &.mines_-3 { color: $MINE_COLOR }
           &.mines_-2 { color: $FLAG_COLOR }
           &.mines_-1 { color: none }
           &.mines_0 { color: none }
