@@ -8,7 +8,7 @@ Team Sweeper is an online multiplayer minesweeper clone for when you want the cl
 #### Stage 1: "Online Minesweeper"
 - [x] As a player, I want to connect to the server and be given a minesweeper game to play.
 - [x] ... When I click a square to sweep it, I want the server to respond by clearing the square or giving a death message.
-- [ ] ... When I right click a square, I want the server to mark the square with a flag
+- [x] ... When I right click a square, I want the server to mark the square with a flag
 - [ ] ... I want to be presented with a remaining mines counter that decreases when I flag a spot for mines.
 - [ ] ... I want to have a time limit to keep me on my toes (And artificially limit the number of open games on the server).
 - [ ] ... When I have cleared all non-mine spaces, I want to be given a victory message and the option to start a new game.
