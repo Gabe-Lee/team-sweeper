@@ -13,6 +13,10 @@ $NEAR_COLOR_10: #306;
 $NEAR_COLOR_11: #000;
 $NEAR_COLOR_12: #fff;
 
+$SPACE_FILL: #ccc;
+$OUTSET_BORDER: #ddd;
+$UNSET_BORDER: #aaa;
+
 $MAX_WIDTH: 1200px;
 
 #app-root {
@@ -23,10 +27,22 @@ $MAX_WIDTH: 1200px;
     margin: 0 auto;
     .board {
       display: grid;
+      border: 2px solid $UNSET_BORDER;
       .space {
         min-width: 100%;
         min-height: 100%;
+        background-color: $SPACE_FILL;
+        border: 2px outset $OUTSET_BORDER;
+        border-radius: none;
+        &:disabled {
+          border: 1px solid $UNSET_BORDER;
+        }
+        &:hover:enabled {
+          border: 2px outset lime;
+        }
         .symbol {
+          font-weight: bold;
+          font-family: "Noto Sans";
           &.mines_-3 { color: $MINE_COLOR }
           &.mines_-2 { color: $FLAG_COLOR }
           &.mines_-1 { color: none }
