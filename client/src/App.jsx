@@ -50,10 +50,11 @@ export default class App extends React.Component {
 
   render() {
     const {
-      board,
+      board, mineCount, safeCount, timer,
     } = this.state;
     return (
       <div className="app">
+        <div>{`Mines Left: ${mineCount}, Safe Spaces Left: ${safeCount}, Time Left: ${Math.floor(timer / 1000)}`}</div>
         <Board board={board} onSpaceClick={this.onSpaceClick} />
       </div>
     );
