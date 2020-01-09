@@ -2,10 +2,13 @@ import React from 'react';
 import T from 'prop-types';
 import Space from './Space';
 
-const Board = ({ board, onSpaceClick }) => (
+const Board = ({ board, onSpaceClick, onSpaceFlag }) => (
   <div
     className="board"
-    onContextMenu={(e) => { e.preventDefault(); }}
+    onContextMenu={(e) => {
+      e.preventDefault();
+      onSpaceFlag(e);
+    }}
     style={
       {
         gridTemplateColumns: `repeat(${board[0] ? board[0].length : 0}, 1fr)`,
@@ -21,5 +24,6 @@ const Board = ({ board, onSpaceClick }) => (
 Board.propTypes = {
   board: T.arrayOf(T.arrayOf(T.number)).isRequired,
   onSpaceClick: T.func.isRequired,
+  onSpaceFlag: T.func.isRequired,
 };
 export default Board;

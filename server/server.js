@@ -32,12 +32,19 @@ server.ws('/game', (ws, req) => {
     } else {
       const data = JSON.parse(message);
       if (data.type === 'SWEEP') {
-        
         const { x, y, player } = data.data;
-        const { space, safeCount } = game.sweepPosition(y, x, player);
+        const { space, safeCount, mineCount } = game.sweepPosition(y, x, player);
         if (space !== -1) {
           serverWs.getWss('/game').clients.forEach((client) => {
             client.send(JSON.stringify({ type: 'SWEPT', data: {x, y, space, safeCount}}));
+          });
+        }
+      } else if (data.type === 'FLAG') {
+        const { x, y, player } = data.data;
+        const { newFlag, status } = game.flagPosition(y, x, player);
+        if (newFlag) {
+          serverWs.getWss('/game').clients.forEach((client) => {
+            client.send(JSON.stringify({ type: 'FLAGGED', data: { x, y, space: status ? -2 : -1 }}));
           });
         }
       }

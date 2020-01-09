@@ -1,7 +1,7 @@
 import React from 'react';
 import T from 'prop-types';
 
-const Space = ({ value, mines, coord, onSpaceClick }) => (
+const Space = ({ mines, coord, onSpaceClick }) => (
   <button
     className="space"
     alt="value"

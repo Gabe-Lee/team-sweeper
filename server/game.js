@@ -94,13 +94,16 @@ class SweeperGame {
     this.players[player] = !wasMine;
     this.deaths += wasMine ? 1 : 0;
     this.safeCount -= wasMine ? 0 : 1;
-    return { space: this.board[y][x], safeCount: this.safeCount };
+    this.mineCount -= wasMine ? 1 : 0;
+    return { space: this.board[y][x], safeCount: this.safeCount, mineCount: this.mineCount };
   }
   
   flagPosition(y, x, player = 'anon') {
     if (!this.playerIsAlive(player)) return -1;
+    const old = this.flags[y][x].total > 0;
     this.flags[y][x].players[player] = this.flags[y][x].players[player] === undefined ? true : !this.flags[y][x].players[player];
     this.flags[y][x].total += this.flags[y][x].players[player] ? 1 : -1;
+    return { newFlag: this.flags[y][x].total > 0 !== old, status: this.flags[y][x].total > 0 };
   }
 
   getVisibleBoard() {
