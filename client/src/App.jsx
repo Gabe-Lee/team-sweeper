@@ -4,23 +4,26 @@ import Board from './Board';
 import { local } from '../../env';
 
 export default class App extends React.Component {
-  state = {
-    board: [],
-    mineCount: 0,
-    safeCount: 0,
-    timer: 0,
-    ended: 0
-  };
+  constructor() {
+    super();
+    this.state = {
+      board: [],
+      mineCount: 0,
+      safeCount: 0,
+      timer: 0,
+      ended: 0
+    };
 
-  onSpaceClick = (event) => {
-    this.start = Date.now();
-    const [y, x] = event.currentTarget.dataset.coord.split('_').map((num) => Number(num));
-    this.socket.send(JSON.stringify({
-      type: 'SWEEP',
-      data: {y, x, player: 'dev'},
-    }))
+    this.onSpaceClick = (event) => {
+      this.start = Date.now();
+      const [y, x] = event.currentTarget.dataset.coord.split('_').map((num) => Number(num));
+      this.socket.send(JSON.stringify({
+        type: 'SWEEP',
+        data: {y, x, player: 'dev'},
+      }))
+    }
   }
-
+  
   componentDidMount() {
     this.socket = new WebSocket(`${local.env.SOCKET}/game`);
     this.socket.onmessage = (event) => {

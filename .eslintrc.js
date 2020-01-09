@@ -1,5 +1,4 @@
 module.exports = {
-  plugins: ["babel"],
   extends: [
     "airbnb",
   ],
@@ -11,5 +10,4 @@ module.exports = {
     "node_modules",
     "dist",
   ],
-  parser: 'babel-eslint'
 }
