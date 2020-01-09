@@ -8,7 +8,7 @@ const serveClient = express.static('client/dist');
 const server = express();
 const serverWs = expressWs(server);
 
-const game = new SweeperGame(50, 20);
+const game = new SweeperGame(50, 10);
 
 server.use(cors);
 server.use(json);
