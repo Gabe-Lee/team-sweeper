@@ -1,8 +1,8 @@
 import React from 'react';
 import T from 'prop-types';
 
-const Space = ({ mines, coord, onSpaceClick }) => (
-  <button className="space" type="button" disabled={mines >= 0 || mines < -2} data-coord={coord} onClick={onSpaceClick}>
+const Space = ({ value, mines, coord, onSpaceClick }) => (
+  <button className="space" alt="value" type="button" disabled={mines >= 0 || mines < -2} data-coord={coord} onClick={onSpaceClick}>
     <span className={`symbol mines_${mines}`}>{Space.getSymbol(mines)}</span>
   </button>
 );
