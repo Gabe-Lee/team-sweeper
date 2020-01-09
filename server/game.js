@@ -3,7 +3,8 @@ const { MersenneTwister19937, bool } = require('random-js');
 const randEngine = MersenneTwister19937.autoSeed();
 
 class SweeperGame {
-  constructor(size = 10, density = 15) {
+  constructor(size = 10, density = 15, timer = 600) {
+    this.timer = timer;
     this.size = Math.max(size, 1);
     this.density = Math.min(Math.max(density, 1), 99);
     this.board = [];

@@ -9,6 +9,14 @@ const server = express();
 const serverWs = expressWs(server);
 
 const game = new SweeperGame(50, 15);
+server.tickTime = () => {
+  game.timer -= 1;
+  serverWs.getWss('/game').clients.forEach((client) => {
+    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer }}));
+  });
+  setTimeout(server.tickTime, 1000);
+};
+server.tickTime();
 
 server.use(cors);
 server.use(json);
@@ -22,7 +30,7 @@ server.ws('/game', (ws, req) => {
       board: game.getVisibleBoard(),
       mineCount: game.mineCount,
       safeCount: game.safeCount,
-      timer: 6000000,
+      timer: game.timer,
     }
   }));
   ws.on('message', (message) => {

@@ -60,6 +60,12 @@ export default class App extends React.Component {
         */
         console.log('Time before setState:',Date.now() - this.start,'ms')
         this.setState({ board: newBoard }, () => {console.log('Time AFTER setState:',Date.now() - this.start,'ms')});
+      } else if (message.type === 'TICK_TIME') {
+        const { timer } = message.data;
+        /*
+        MAJOR SLOWDOWN DURING THE SET STATE (REDRAWING EVERY SPACE WHEN ONE SPACE UPDATES!!!!!)
+        */
+        this.setState({ timer });
       }
     } 
   }
@@ -70,7 +76,7 @@ export default class App extends React.Component {
     } = this.state;
     return (
       <div className="app">
-        <div>{`Mines Left: ${mineCount}, Safe Spaces Left: ${safeCount}, Time Left: ${Math.floor(timer / 1000)}`}</div>
+        <div>{`Mines Left: ${mineCount}, Safe Spaces Left: ${safeCount}, Time Left: ${timer}`}</div>
         <Board board={board} onSpaceClick={this.onSpaceClick} onSpaceFlag={this.onSpaceFlag} />
       </div>
     );
