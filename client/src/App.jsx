@@ -15,7 +15,7 @@ export default class App extends React.Component {
 
     this.onSpaceClick = (event) => {
       this.start = Date.now(); // PERFORMANCE CHECK !!!!!!!!!!!!!!!!
-      const [y, x] = event.currentTarget.dataset.coord.split('_').map((num) => Number(num));
+      const [y, x] = event.target.dataset.coord.split('_').map((num) => Number(num));
       this.socket.send(JSON.stringify({
         type: 'SWEEP',
         data: { y, x, player: 'dev' },

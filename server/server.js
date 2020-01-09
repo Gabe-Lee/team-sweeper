@@ -6,7 +6,6 @@ const SweeperGame = require('./game');
 const json = express.json();
 const serveClient = express.static('client/dist');
 const server = express();
-// eslint-disable-next-line no-unused-vars
 const serverWs = expressWs(server);
 
 const game = new SweeperGame(50, 20);
@@ -36,7 +35,7 @@ server.ws('/game', (ws, req) => {
         const { space, safeCount, mineCount } = game.sweepPosition(y, x, player);
         if (space !== -1) {
           serverWs.getWss('/game').clients.forEach((client) => {
-            client.send(JSON.stringify({ type: 'SWEPT', data: {x, y, space, safeCount}}));
+            client.send(JSON.stringify({ type: 'SWEPT', data: {x, y, space, safeCount, mineCount}}));
           });
         }
       } else if (data.type === 'FLAG') {

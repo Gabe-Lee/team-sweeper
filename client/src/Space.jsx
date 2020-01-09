@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import T from 'prop-types';
 
-const Space = ({ mines, coord, onSpaceClick }) => (
-  <button
-    className="space"
-    alt="value"
-    type="button"
-    disabled={mines >= 0 || mines < -2}
-    data-coord={coord}
-    onClick={onSpaceClick}
-  >
-    <span className={`symbol mines_${mines}`}>{Space.getSymbol(mines)}</span>
-  </button>
-);
+export default class Space extends PureComponent {
+  render() {
+    const { coord, mines } = this.props;
+    return (
+      <button
+        className="space"
+        alt="value"
+        type="button"
+        disabled={mines >= 0 || mines < -2}
+        data-coord={coord}
+      >
+        <span className={`symbol mines_${mines}`}>{Space.getSymbol(mines)}</span>
+      </button>
+    );
+  }
+}
 // -3 = visible mine
 // -2 = flagged spot
 // -1 = untested spot
@@ -26,6 +30,4 @@ Space.getSymbol = (mines) => {
 Space.propTypes = {
   mines: T.number.isRequired,
   coord: T.string.isRequired,
-  onSpaceClick: T.func.isRequired,
 };
-export default Space;
