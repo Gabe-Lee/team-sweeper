@@ -3,7 +3,7 @@ const { MersenneTwister19937, bool } = require('random-js');
 const randEngine = MersenneTwister19937.autoSeed();
 
 class SweeperGame {
-  constructor(size = 10, density = 50) {
+  constructor(size = 10, density = 30) {
     this.size = Math.max(size, 1);
     this.density = Math.min(Math.max(density, 1), 99);
     this.board = [];
@@ -56,11 +56,11 @@ class SweeperGame {
     let start = [0, 0];
     let reveal = true;
     if (edgeStarts.length > 0) {
-      start = Math.floor(Math.random() * edgeStarts.length);
+      start = edgeStarts[Math.floor(Math.random() * edgeStarts.length)];
     } else if (centerStarts > 0) {
-      start = Math.floor(Math.random() * centerStarts.length);
+      start = centerStarts[Math.floor(Math.random() * centerStarts.length)];
     } else if (singleStarts > 0) {
-      start = Math.floor(Math.random() * singleStarts.length);
+      start = singleStarts[Math.floor(Math.random() * singleStarts.length)];
       reveal = false;
     }
     if (reveal) {
@@ -72,6 +72,7 @@ class SweeperGame {
         }
       }
     }
+    this.visible[start[0]][start[1]] = true;
   }
   static neighbors = [
     [-1,-1], [-1, 0], [-1, 1],
@@ -87,14 +88,13 @@ class SweeperGame {
   }
 
   sweepPosition(y, x, player = 'anon') {
-    console.log(y, x, player)
-    if (!this.playerIsAlive(player)) return -1;
+    if (!this.playerIsAlive(player)) return  { space: -1, safeCount: this.safeCount };
     this.visible[y][x] = true;
     const wasMine = this.board[y][x] === -3;
     this.players[player] = !wasMine;
     this.deaths += wasMine ? 1 : 0;
     this.safeCount -= wasMine ? 0 : 1;
-    return this.board[y][x];
+    return { space: this.board[y][x], safeCount: this.safeCount };
   }
   
   flagPosition(y, x, player = 'anon') {
@@ -118,6 +118,10 @@ class SweeperGame {
       }
     }
     return visBoard;
+  }
+
+  getHiddenBoard() {
+    return this.board;
   }
 }
 

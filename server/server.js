@@ -9,7 +9,7 @@ const server = express();
 // eslint-disable-next-line no-unused-vars
 const serverWs = expressWs(server);
 
-const game = new SweeperGame(50, 50);
+const game = new SweeperGame(50, 20);
 
 server.use(cors);
 server.use(json);
@@ -21,6 +21,7 @@ server.ws('/game', (ws, req) => {
     type: 'CURRENT_GAME',
     data: {
       board: game.getVisibleBoard(),
+      mineCount: game.mineCount,
       safeCount: game.safeCount,
       timer: 6000000,
     }
@@ -30,14 +31,13 @@ server.ws('/game', (ws, req) => {
       ws.close();
     } else {
       const data = JSON.parse(message);
-      console.log(data);
       if (data.type === 'SWEEP') {
+        
         const { x, y, player } = data.data;
-        console.log(x, y, player);
-        const result = game.sweepPosition(y, x, player);
-        if (result !== -1) {
+        const { space, safeCount } = game.sweepPosition(y, x, player);
+        if (space !== -1) {
           serverWs.getWss('/game').clients.forEach((client) => {
-            client.send(JSON.stringify({ type: 'SWEPT', data: {x, y, result}}));
+            client.send(JSON.stringify({ type: 'SWEPT', data: {x, y, space, safeCount}}));
           });
         }
       }
