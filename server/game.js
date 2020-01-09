@@ -54,25 +54,19 @@ class SweeperGame {
       }
     }
     let start = [0, 0];
-    let reveal = true;
     if (edgeStarts.length > 0) {
       start = edgeStarts[Math.floor(Math.random() * edgeStarts.length)];
     } else if (centerStarts > 0) {
       start = centerStarts[Math.floor(Math.random() * centerStarts.length)];
     } else if (singleStarts > 0) {
       start = singleStarts[Math.floor(Math.random() * singleStarts.length)];
-      reveal = false;
     }
-    if (reveal) {
-      for (let n = 0; n < SweeperGame.neighbors.length; n += 1) {
-        const yy = start[0] + SweeperGame.neighbors[n][0];
-        const xx = start[1] + SweeperGame.neighbors[n][1];
-        if (xx >= 0 && xx < this.size && yy >= 0 && yy < this.size) {
-          this.visible[yy][xx] = true;
-        }
-      }
+    let spaces = [{y: start[0], x: start[1]}]
+    spaces = spaces.concat(this.recursiveSweep(spaces, {[`${start[0]}_${start[1]}`]: true}));
+    for (let i = 0; i < spaces.length; i += 1) {
+      this.visible[spaces[i].y][spaces[i].x] = true;
     }
-    this.visible[start[0]][start[1]] = true;
+    
   }
   static neighbors = [
     [-1,-1], [-1, 0], [-1, 1],
@@ -87,16 +81,46 @@ class SweeperGame {
     return this.players[player];
   }
 
+  recursiveSweep(children = [], swept = {}) {
+    if (children.length === 0) return [];
+    let recurseChildren = [];
+    let sweepChildren = [];
+    for (let i = 0; i < children.length; i += 1) {
+      const {y, x} = children[i];
+      for (let n = 0; n < SweeperGame.neighbors.length; n += 1) {
+        const yy = y + SweeperGame.neighbors[n][0];
+        const xx = x + SweeperGame.neighbors[n][1];
+        if (yy >= 0 && yy < this.size && xx >= 0 && xx < this.size && this.board[yy][xx] !== -3 && swept[`${yy}_${xx}`] === undefined) {
+          sweepChildren.push({y: yy, x: xx, space: this.board[yy][xx]});
+          swept[`${yy}_${xx}`] = true;
+          if (this.board[yy][xx] === 0) {
+            recurseChildren.push({y: yy, x: xx, space: this.board[yy][xx]});
+          }
+        }
+      }
+    }
+    sweepChildren = sweepChildren.concat(this.recursiveSweep(recurseChildren, swept));
+    return sweepChildren;
+  }
+
   sweepPosition(y, x, player = 'anon') {
-    if (!this.playerIsAlive(player)) return  { space: -1, safeCount: this.safeCount };
-    this.visible[y][x] = true;
+    if (!this.playerIsAlive(player)) return  { spaces: [], safeCount: this.safeCount };
     const wasMine = this.board[y][x] === -3;
     this.players[player] = !wasMine;
     this.deaths += wasMine ? 1 : 0;
-    this.safeCount -= wasMine ? 0 : 1;
     this.mineCount -= wasMine ? 1 : 0;
-    return { space: this.board[y][x], safeCount: this.safeCount, mineCount: this.mineCount };
+    let spaces = [{y, x, space: this.board[y][x]}];
+    if (!wasMine && this.board[y][x] === 0) {
+      spaces = spaces.concat(this.recursiveSweep(spaces, {[`${y}_${x}`]: true}))
+    }
+    for (let i = 0; i < spaces.length; i += 1) {
+      this.visible[spaces[i].y, spaces[i].x] = true;
+      this.safeCount -= 1;
+    }
+    return { spaces, safeCount: this.safeCount, mineCount: this.mineCount };
   }
+
+  
   
   flagPosition(y, x, player = 'anon') {
     if (!this.playerIsAlive(player)) return -1;

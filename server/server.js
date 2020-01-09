@@ -8,7 +8,7 @@ const serveClient = express.static('client/dist');
 const server = express();
 const serverWs = expressWs(server);
 
-const game = new SweeperGame(50, 10);
+const game = new SweeperGame(50, 15);
 
 server.use(cors);
 server.use(json);
@@ -32,10 +32,10 @@ server.ws('/game', (ws, req) => {
       const data = JSON.parse(message);
       if (data.type === 'SWEEP') {
         const { x, y, player } = data.data;
-        const { space, safeCount, mineCount } = game.sweepPosition(y, x, player);
-        if (space !== -1) {
+        const { spaces, safeCount, mineCount } = game.sweepPosition(y, x, player);
+        if (spaces.length > 0) {
           serverWs.getWss('/game').clients.forEach((client) => {
-            client.send(JSON.stringify({ type: 'SWEPT', data: {x, y, space, safeCount, mineCount}}));
+            client.send(JSON.stringify({ type: 'SWEPT', data: { spaces, safeCount, mineCount }}));
           });
         }
       } else if (data.type === 'FLAG') {

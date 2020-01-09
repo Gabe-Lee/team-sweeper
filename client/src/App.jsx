@@ -14,6 +14,7 @@ export default class App extends React.Component {
     };
 
     this.onSpaceClick = (event) => {
+      if (event.target.disabled) return;
       this.start = Date.now(); // PERFORMANCE CHECK !!!!!!!!!!!!!!!!
       const [y, x] = event.target.dataset.coord.split('_').map((num) => Number(num));
       this.socket.send(JSON.stringify({
@@ -23,7 +24,7 @@ export default class App extends React.Component {
     };
 
     this.onSpaceFlag = (event) => {
-      console.log(event.target.dataset.coord)
+      if (event.target.disabled) return;
       const [y, x] = event.target.dataset.coord.split('_').map((num) => Number(num));
       this.socket.send(JSON.stringify({
         type: 'FLAG',
@@ -40,9 +41,11 @@ export default class App extends React.Component {
         const { board, mineCount, safeCount, timer } = message.data;
         this.setState({ board, mineCount, safeCount, timer });
       } else if (message.type === 'SWEPT') {
-        const { x, y, space, safeCount, mineCount } = message.data;
+        const { spaces, safeCount, mineCount } = message.data;
         const newBoard = this.state.board.slice();
-        newBoard[y][x] = space;
+        for (let i = 0; i < spaces.length; i += 1) {
+          newBoard[spaces[i].y][spaces[i].x] = spaces[i].space;
+        }
         /*
         MAJOR SLOWDOWN DURING THE SET STATE (REDRAWING EVERY SPACE WHEN ONE SPACE UPDATES!!!!!)
         */
