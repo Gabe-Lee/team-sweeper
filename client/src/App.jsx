@@ -61,10 +61,6 @@ export default class App extends React.Component {
     } 
   }
 
-  componentDidUpdate() {
-    console.log('updated')
-  }
-
   render() {
     const {
       board, mineCount, safeCount, timer,
