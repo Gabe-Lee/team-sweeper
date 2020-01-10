@@ -1,7 +1,7 @@
 const express = require('express');
 const expressWs = require('express-ws');
 const cors = require('cors')();
-const SweeperGame = require('./game');
+const SweeperGame = require('./game.js');
 
 const json = express.json();
 const serveClient = express.static('client/dist');
