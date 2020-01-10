@@ -43,7 +43,6 @@ export default class App extends React.Component {
     this.onLoginSubmit = (event) => {
       const name = event.target.parentNode.childNodes[0].value;
       const password = event.target.parentNode.childNodes[1].value;
-      console.log('info:',name, password)
       this.socket.send(JSON.stringify({
         type: 'LOGIN',
         data: { name, password },
@@ -76,9 +75,8 @@ export default class App extends React.Component {
         this.setState({ timer, status, playerList });
       } else if (message.type === 'LOGGED') {
         let newPlayer = message.data.user;
-        console.log(newPlayer)
         this.setState({ player: newPlayer });
-      } 
+      }
     };
   }
 

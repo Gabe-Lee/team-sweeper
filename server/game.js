@@ -3,7 +3,7 @@ const { MersenneTwister19937, bool } = require('random-js');
 const randEngine = MersenneTwister19937.autoSeed();
 
 class SweeperGame {
-  constructor(size = 30, density = 25, timer = 600) {
+  constructor(size = 30, density = 20, timer = 600) {
     this.timer = timer;
     this.size = Math.max(size, 1);
     this.density = Math.min(Math.max(density, 1), 99);
@@ -127,6 +127,9 @@ class SweeperGame {
       }
     }
     let spaces = [{y, x, space: this.board[y][x]}];
+    if (!wasMine) {
+      this.players[player].score += 1;
+    }
     if (!wasMine && this.board[y][x] === 0) {
       spaces = spaces.concat(this.recursiveSweep(spaces, {[`${y}_${x}`]: true}))
     }

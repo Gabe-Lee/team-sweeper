@@ -20,7 +20,7 @@ const sess = {
   store: new MongoStore({ url: URL }),
 };
 
-let game = new SweeperGame(30, 25, 900);
+let game = new SweeperGame(35, 15, 900);
 server.tickTime = () => {
   game.timer -= 1;
   if (game.timer < -60) {
