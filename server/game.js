@@ -3,7 +3,7 @@ const { MersenneTwister19937, bool } = require('random-js');
 const randEngine = MersenneTwister19937.autoSeed();
 
 class SweeperGame {
-  constructor(size = 10, density = 15, timer = 600) {
+  constructor(size = 10, density = 15, timer = 1000) {
     this.timer = timer;
     this.size = Math.max(size, 1);
     this.density = Math.min(Math.max(density, 1), 99);
@@ -13,6 +13,7 @@ class SweeperGame {
     this.deaths = 0;
     this.players = {}
     this.mineCount = 0;
+    this.status = 'IN PROGRESS';
     this.safeCount = size * size;
     this.randDist = bool(density, 100);
     this.randBool = () => this.randDist(randEngine);
@@ -66,6 +67,7 @@ class SweeperGame {
     spaces = spaces.concat(this.recursiveSweep(spaces, {[`${start[0]}_${start[1]}`]: true}));
     for (let i = 0; i < spaces.length; i += 1) {
       this.visible[spaces[i].y][spaces[i].x] = true;
+      this.safeCount -= 1;
     }
     
   }
@@ -105,11 +107,22 @@ class SweeperGame {
   }
 
   sweepPosition(y, x, player = 'anon') {
-    if (!this.playerIsAlive(player)) return  { spaces: [], safeCount: this.safeCount };
+    if (
+        this.status === 'GAME OVER' ||
+        this.status === 'GAME CLEAR' ||
+        this.status === 'TIME OUT' ||
+        !this.playerIsAlive(player)
+      ) return { spaces: [] };
     const wasMine = this.board[y][x] === -3;
-    this.players[player] = !wasMine;
-    this.deaths += wasMine ? 1 : 0;
-    this.mineCount -= wasMine ? 1 : 0;
+    if (wasMine) {
+      this.players[player] = false;
+      this.mineCount -= 1;
+      this.deaths += 1;
+      if (this.deaths >= 64) {
+        this.status = "GAME OVER";
+        this.timer = 0;
+      }
+    }
     let spaces = [{y, x, space: this.board[y][x]}];
     if (!wasMine && this.board[y][x] === 0) {
       spaces = spaces.concat(this.recursiveSweep(spaces, {[`${y}_${x}`]: true}))
@@ -117,12 +130,15 @@ class SweeperGame {
     for (let i = 0; i < spaces.length; i += 1) {
       this.visible[spaces[i].y, spaces[i].x] = true;
       this.safeCount -= 1;
+      if (this.safeCount <= 0) {
+        this.safeCount === 0;
+        this.status = 'GAME CLEAR';
+        this.timer = 0;
+      }
     }
-    return { spaces, safeCount: this.safeCount, mineCount: this.mineCount };
+    return { spaces, safeCount: this.safeCount, mineCount: this.mineCount, deaths: this.deaths, died: this.players[player] ? '' : player };
   }
 
-  
-  
   flagPosition(y, x, player = 'anon') {
     if (!this.playerIsAlive(player)) return -1;
     const old = this.flags[y][x].total > 0;

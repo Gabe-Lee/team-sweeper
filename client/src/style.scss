@@ -20,9 +20,14 @@ $UNSET_BORDER: #aaa;
 $MAX_WIDTH: 1200px;
 
 #app-root {
+  
   .app {
-    max-width: $MAX_WIDTH;
-    width: 100vmin;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 100vw;
+    width: 100vw;
     height: auto;
     margin: 0 auto;
     .board {

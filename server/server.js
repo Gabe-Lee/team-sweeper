@@ -8,11 +8,26 @@ const serveClient = express.static('client/dist');
 const server = express();
 const serverWs = expressWs(server);
 
-const game = new SweeperGame(50, 15);
+let game = new SweeperGame(20, 20, 900);
 server.tickTime = () => {
   game.timer -= 1;
+  if (game.timer < -60) {
+    game = new SweeperGame(20, 20, 900);
+    serverWs.getWss('/game').clients.forEach((client) => {
+      client.send(JSON.stringify({
+        type: 'CURRENT_GAME',
+        data: {
+          board: game.getVisibleBoard(),
+          mineCount: game.mineCount,
+          safeCount: game.safeCount,
+          timer: game.timer,
+          status: game.status,
+        }
+      }));
+    });
+  }
   serverWs.getWss('/game').clients.forEach((client) => {
-    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer }}));
+    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer, status: game.status }}));
   });
   setTimeout(server.tickTime, 1000);
 };
@@ -31,6 +46,7 @@ server.ws('/game', (ws, req) => {
       mineCount: game.mineCount,
       safeCount: game.safeCount,
       timer: game.timer,
+      status: game.status,
     }
   }));
   ws.on('message', (message) => {
@@ -40,10 +56,10 @@ server.ws('/game', (ws, req) => {
       const data = JSON.parse(message);
       if (data.type === 'SWEEP') {
         const { x, y, player } = data.data;
-        const { spaces, safeCount, mineCount } = game.sweepPosition(y, x, player);
+        const { spaces, safeCount, mineCount, deaths, died } = game.sweepPosition(y, x, player);
         if (spaces.length > 0) {
           serverWs.getWss('/game').clients.forEach((client) => {
-            client.send(JSON.stringify({ type: 'SWEPT', data: { spaces, safeCount, mineCount }}));
+            client.send(JSON.stringify({ type: 'SWEPT', data: { spaces, safeCount, mineCount, deaths, died }}));
           });
         }
       } else if (data.type === 'FLAG') {
