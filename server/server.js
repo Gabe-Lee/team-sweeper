@@ -4,7 +4,10 @@ const cors = require('cors')();
 const SweeperGame = require('./game.js');
 const db = require('../database/interface.js');
 const crypt = require('./crypt');
+const uuidv4 = require('uuid/v4');
+const cookieParser = require('cookie-parser')();
 const { URL } = require('../env').database;
+const WS = require('./actions');
 
 const json = express.json();
 const serveClient = express.static('client/dist');
@@ -40,28 +43,120 @@ server.tickTime();
 
 server.use(cors);
 server.use(json);
-server.use(session(sess));
+server.use(cookieParser);
 
 server.use('/', serveClient);
 
 server.ws('/game', (ws, req) => {
-  console.log(req.session);
-  if (req.session === undefined) {
-    req.session.regenerate();
+  console.log(req.cookies.session);
+  if (req.cookies.session === undefined || req.cookies.session.expires < Date.now()) {
+    const newUuid = uuidv4();
+    const newExpires = Date.now() + 604800000;
+    db.newSession({
+      uuid: newUuid,
+      owner: null,
+      loggedIn: false,
+      expires: newExpires,
+    });
+    ws.cookie('session', newUuid, { expires: new Date(newExpires), httpOnly: true });
   }
-  ws.send(JSON.stringify({
-    type: 'CURRENT_GAME',
-    data: {
-      board: game.getVisibleBoard(),
-      mineCount: game.mineCount,
-      safeCount: game.safeCount,
-      timer: game.timer,
-      status: game.status,
-      deaths: `${game.deaths}/${game.maxDeaths}`,
-      flags: game.uniqueFlags,
-    },
-  }));
-  ws.on('message', (message) => {
+  const sessionUuid = req.cookies.session || ws.cookies.session;
+  // ws.send(JSON.stringify({
+  //   type: 'CURRENT_GAME',
+  //   data: {
+  //     board: game.getVisibleBoard(),
+  //     mineCount: game.mineCount,
+  //     safeCount: game.safeCount,
+  //     timer: game.timer,
+  //     status: game.status,
+  //     deaths: `${game.deaths}/${game.maxDeaths}`,
+  //     flags: game.uniqueFlags,
+  //   },
+  // }));
+  ws.on('message', (msgStr) => {
+    const { type, data } = JSON.parse(msgStr);
+    switch (type) {
+      // WebSocket Message Types
+
+      case WS.REQ_CLOSE:
+        ws.close();
+        break;
+
+      case WS.REQ_SESSION_LOGIN:
+        db.checkSession(sessionUuid)
+          .then((session) => {
+            if (session === null
+              || session.loggedIn !== true
+              || session.owner === null
+              || session.uuid === undefined
+              || session.expires < Date.now()) {
+              ws.send({ type: WS.SEND_ERROR, data: 'Session Not Valid For Login' });
+            } else {
+              db.getUser(session.owner)
+                .then((user) => {
+                  delete user._id;
+                  delete user.hash;
+                  ws.send({ type: WS.SEND_USER, data: user });
+                });
+            }
+          });
+        break;
+
+      case WS.REQ_USER_LOGIN:
+        db.getUser(data.name)
+          .then((user) => crypt.compareHash(data.password, user.hash))
+          .then((matches) => {
+            if (!matches) {
+              ws.send({ type: WS.SEND_ERROR, data: 'Password Mismatch' });
+            } else {
+              db.getUser(data.name)
+                .then((user) => {
+                  delete user.hash;
+                  delete user._id;
+                  ws.send({ type: WS.SEND_USER, data: user });
+                });
+            }
+          });
+        break;
+
+      case WS.SWEEP:
+        // eslint-disable-next-line no-case-declarations
+        const { spaces } = game.sweepPosition(data.y, data.x, data.player);
+        if (spaces.length > 0) {
+          serverWs.getWss('/game').clients.forEach((client) => {
+            client.send(JSON.stringify({
+              type: WS.SEND_SWEEP_RESULT,
+              data: {
+                spaces,
+                safeCount: game.safeCount,
+                mineCount: game.mineCount,
+                deaths: `${game.deaths}/${game.maxDeaths}`,
+              },
+            }));
+          });
+        }
+        break;
+
+      case WS.FLAG:
+        // eslint-disable-next-line no-case-declarations
+        const { newFlag, status } = game.flagPosition(data.y, data.x, data.player);
+        if (newFlag) {
+          serverWs.getWss('/game').clients.forEach((client) => {
+            client.send(JSON.stringify({
+              type: WS.SEND_FLAG_RESULT,
+              data: {
+                x,
+                y,
+                space: status ? -2 : -1,
+                flags: game.uniqueFlags,
+              },
+            }));
+          });
+        }
+
+      default:
+        ws.send({ type: WS.SEND_ERROR, data: 'Message type not recognized' });
+    }
     if (message === 'close') {
       ws.close();
     } else {
@@ -79,7 +174,7 @@ server.ws('/game', (ws, req) => {
         const { newFlag, status } = game.flagPosition(y, x, player);
         if (newFlag) {
           serverWs.getWss('/game').clients.forEach((client) => {
-            client.send(JSON.stringify({ type: 'FLAGGED', data: { x, y, space: status ? -2 : -1, flags: game.uniqueFlags }}));
+            client.send(JSON.stringify({ type: WS.SEND_FLAG_RESULT, data: { x, y, space: status ? -2 : -1, flags: game.uniqueFlags }}));
           });
         }
       } else if (data.type === 'S_LOGIN') {

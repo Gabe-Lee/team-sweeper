@@ -30,4 +30,24 @@ module.exports = {
       .then((db) => db.collection('Users'))
       .then((users) => users.findOne({ name }));
   },
+  newSession(session) {
+    const { uuid, owner, expires, loggedIn } = session;
+    return client.connect()
+      .then(() => client.db('TeamSweeper'))
+      .then((db) => db.collection('Sessions'))
+      .then((sessions) => sessions.insertOne({ uuid, owner, expires, loggedIn }));
+  },
+  checkSession(uuid) {
+    return client.connect()
+      .then(() => client.db('TeamSweeper'))
+      .then((db) => db.collection('Sessions'))
+      .then((sessions) => sessions.findOne({ uuid }))
+      .then((session) => {
+        if (session.expires < Date.now()) {
+          sessions.deleteOne({ uuid });
+          return null;
+        }
+        return session;
+      });
+  },
 };
