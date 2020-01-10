@@ -1,8 +1,7 @@
 const MongoDB = require('mongodb');
-// const { User } = require('./models.js');
 const { database } = require('../env');
 
-const client = new MongoDB.MongoClient(database.URL);
+const client = new MongoDB.MongoClient(database.URL, { useUnifiedTopology: true });
 
 module.exports = {
   addUser(name, hash) {

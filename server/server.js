@@ -1,14 +1,24 @@
 const express = require('express');
 const expressWs = require('express-ws');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 const cors = require('cors')();
 const SweeperGame = require('./game.js');
 const db = require('../database/interface.js');
 const crypt = require('./crypt');
+const { URL } = require('../env').database;
 
 const json = express.json();
 const serveClient = express.static('client/dist');
 const server = express();
 const serverWs = expressWs(server);
+const sess = {
+  secret: '3secret5me',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 3600000 },
+  store: new MongoStore({ url: URL }),
+};
 
 let game = new SweeperGame(30, 25, 900);
 server.tickTime = () => {
@@ -38,10 +48,15 @@ server.tickTime();
 
 server.use(cors);
 server.use(json);
+server.use(session(sess));
 
 server.use('/', serveClient);
 
 server.ws('/game', (ws, req) => {
+  console.log(req.session);
+  if (req.session === undefined) {
+    req.session.regenerate();
+  }
   ws.send(JSON.stringify({
     type: 'CURRENT_GAME',
     data: {
@@ -77,17 +92,20 @@ server.ws('/game', (ws, req) => {
         }
       } else if (data.type === 'LOGIN') {
         const { name, password } = data.data;
-        console.log(name, password)
         db.getUser(name)
           .then((user) => {
-            console.log(user)
             if (user === null) {
+              req.session.loggedIn = true;
               return crypt.createHash(password)
                 .then((hash) => db.addUser(name, hash));
+            }
+            if (req.session.loggedIn === true) {
+              return user;
             }
             return crypt.compareHash(password, user.hash)
               .then((res) => {
                 if (!res) throw new Error('Password mismatch');
+                req.session.loggedIn = true;
                 delete user.hash;
                 delete user._id;
                 return user;
@@ -100,7 +118,6 @@ server.ws('/game', (ws, req) => {
               game.players[user.name].alive = true;
               game.players[user.name].score = 0;
             }
-            
           })
           .catch((err) => {
             console.log(err);
