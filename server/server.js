@@ -3,17 +3,17 @@ const expressWs = require('express-ws');
 const cors = require('cors')();
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
+// const https = require('https');
 const SweeperGame = require('./game.js');
 
 const json = express.json();
 const serveClient = express.static('client/dist');
 const server = express();
-const serverSSL = https.createServer({
-  key: fs.readFileSync('server.key'),
-  cert: fs.readFileSync('server.cert'),
-}, server);
-const serverWs = expressWs(server, serverSSL);
+// const serverSSL = https.createServer({
+//   key: fs.readFileSync('server.key'),
+//   cert: fs.readFileSync('server.cert'),
+// }, server);
+const serverWs = expressWs(server);
 
 let game = new SweeperGame(20, 20, 900);
 server.tickTime = () => {
@@ -82,4 +82,4 @@ server.ws('/game', (ws, req) => {
   });
 });
 
-module.exports = serverSSL;
+module.exports = server;
