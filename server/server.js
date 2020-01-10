@@ -8,12 +8,12 @@ const SweeperGame = require('./game.js');
 
 const json = express.json();
 const serveClient = express.static('client/dist');
-const serverEx = express();
-const server = https.createServer({
+const server = express();
+const serverSSL = https.createServer({
   key: fs.readFileSync('server.key'),
   cert: fs.readFileSync('server.cert'),
 });
-const serverWs = expressWs(serverEx, server);
+const serverWs = expressWs(server, serverSSL);
 
 let game = new SweeperGame(20, 20, 900);
 server.tickTime = () => {
