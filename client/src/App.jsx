@@ -41,8 +41,10 @@ export default class App extends React.Component {
     };
 
     this.onLoginSubmit = (event) => {
-      const name = event.target.parentNode.childNodes[0].value;
-      const password = event.target.parentNode.childNodes[1].value;
+      const name = event.target.parentNode.childNodes[1].value;
+      const password = event.target.parentNode.childNodes[2].value;
+      const password2 = event.target.parentNode.childNodes[3].value;
+      if (password !== password2) return;
       this.socket.send(JSON.stringify({
         type: 'LOGIN',
         data: { name, password },
@@ -52,6 +54,9 @@ export default class App extends React.Component {
 
   componentDidMount() {
     this.socket = new WebSocket(`${local.env.SOCKET}/game`);
+    this.socket.onopen = (event) => {
+      this.socket.send({ type: 'S_LOGIN' });
+    }
     this.socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === 'CURRENT_GAME') {

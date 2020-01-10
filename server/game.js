@@ -12,6 +12,7 @@ class SweeperGame {
     this.flags = [];
     this.uniqueFlags = 0;
     this.deaths = 0;
+    this.maxDeaths = 0;
     this.players = {}
     this.mineCount = 0;
     this.status = 'IN PROGRESS';
@@ -31,6 +32,7 @@ class SweeperGame {
         this.flags[y].push({ players: [], total: 0 });
       }
     }
+    this.maxDeaths = Math.floor(this.mineCount * (this.density / 20) / 10)
     const edgeStarts = [];
     const centerStarts = [];
     const singleStarts = [];

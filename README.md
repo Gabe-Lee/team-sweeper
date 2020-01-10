@@ -1,14 +1,13 @@
 # Team Sweeper
 ***
 
-
 Team Sweeper is an online multiplayer minesweeper clone for when you want the classic minesweeper experience with a social aspect.
 
 ## Current Milestone: [Stage 3: "Competitive Coop"](#stage-3-%22competitive-coop%22)
 #### Stage 3: "Competitive Coop"
-- [ ] As a player, I want be scored on how many spaces I clear and of what complexity.
-- [ ] ... I want to see my score against the scores of other users and my rank for the current game.
-- [ ] ... When I connect to the website I want to be able to log in to play.
+- [x] As a player, I want be scored on how many spaces I clear and of what complexity.
+- [x] ... I want to see my score against the scores of other users and my rank for the current game.
+- [x] ... When I connect to the website I want to be able to log in to play.
 - [ ] ... I want my stats to be saved to my account for me to see.
 #### Stage 2: "Group Minesweeper"
 - [x] As a player, I want to be able to supply my name to the server and see it appear in a list of connected players.

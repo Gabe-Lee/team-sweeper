@@ -1,7 +1,5 @@
 const express = require('express');
 const expressWs = require('express-ws');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
 const cors = require('cors')();
 const SweeperGame = require('./game.js');
 const db = require('../database/interface.js');
@@ -12,13 +10,7 @@ const json = express.json();
 const serveClient = express.static('client/dist');
 const server = express();
 const serverWs = expressWs(server);
-const sess = {
-  secret: '3secret5me',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { maxAge: 3600000 },
-  store: new MongoStore({ url: URL }),
-};
+
 
 let game = new SweeperGame(35, 15, 900);
 server.tickTime = () => {
@@ -34,13 +26,13 @@ server.tickTime = () => {
           safeCount: game.safeCount,
           timer: game.timer,
           status: game.status,
-          deaths: game.deaths,
+          deaths: `${game.deaths}/${game.maxDeaths}`,
         },
       }));
     });
   }
   serverWs.getWss('/game').clients.forEach((client) => {
-    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer, status: game.status, playerList: game.players }}));
+    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer < 0 ? 59 + game.timer : game.timer, status: game.status, playerList: game.players }}));
   });
   setTimeout(server.tickTime, 1000);
 };
@@ -65,7 +57,7 @@ server.ws('/game', (ws, req) => {
       safeCount: game.safeCount,
       timer: game.timer,
       status: game.status,
-      deaths: game.deaths,
+      deaths: `${game.deaths}/${game.maxDeaths}`,
       flags: game.uniqueFlags,
     },
   }));
@@ -79,7 +71,7 @@ server.ws('/game', (ws, req) => {
         const { spaces, safeCount, mineCount, deaths, died } = game.sweepPosition(y, x, player);
         if (spaces.length > 0) {
           serverWs.getWss('/game').clients.forEach((client) => {
-            client.send(JSON.stringify({ type: 'SWEPT', data: { spaces, safeCount, mineCount, deaths, died }}));
+            client.send(JSON.stringify({ type: 'SWEPT', data: { spaces, safeCount, mineCount, deaths: `${game.deaths}/${game.maxDeaths}`, died }}));
           });
         }
       } else if (data.type === 'FLAG') {
@@ -90,6 +82,9 @@ server.ws('/game', (ws, req) => {
             client.send(JSON.stringify({ type: 'FLAGGED', data: { x, y, space: status ? -2 : -1, flags: game.uniqueFlags }}));
           });
         }
+      } else if (data.type === 'S_LOGIN') {
+        if (!req.session || !req.session.loggedIn || !req.session.owner || !req.session.sessionID) return;
+        const {owner, sessionID} = req.session;
       } else if (data.type === 'LOGIN') {
         const { name, password } = data.data;
         db.getUser(name)
