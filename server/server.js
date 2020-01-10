@@ -10,8 +10,8 @@ const json = express.json();
 const serveClient = express.static('client/dist');
 const serverEx = express();
 const server = https.createServer({
-  key: fs.readFileSync(path.resolve(__dirname, '/server.key')),
-  cert: fs.readFileSync(path.resolve(__dirname, '/server.cert')),
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.cert'),
 });
 const serverWs = expressWs(serverEx, server);
 
