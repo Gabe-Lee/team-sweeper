@@ -10,6 +10,7 @@ class SweeperGame {
     this.board = [];
     this.visible = [];
     this.flags = [];
+    this.uniqueFlags = 0;
     this.deaths = 0;
     this.players = {}
     this.mineCount = 0;
@@ -130,7 +131,7 @@ class SweeperGame {
       spaces = spaces.concat(this.recursiveSweep(spaces, {[`${y}_${x}`]: true}))
     }
     for (let i = 0; i < spaces.length; i += 1) {
-      this.visible[spaces[i].y, spaces[i].x] = true;
+      this.visible[spaces[i].y][spaces[i].x] = true;
       this.safeCount -= 1;
       if (this.safeCount <= 0) {
         this.safeCount === 0;
@@ -146,7 +147,11 @@ class SweeperGame {
     const old = this.flags[y][x].total > 0;
     this.flags[y][x].players[player] = this.flags[y][x].players[player] === undefined ? true : !this.flags[y][x].players[player];
     this.flags[y][x].total += this.flags[y][x].players[player] ? 1 : -1;
-    return { newFlag: this.flags[y][x].total > 0 !== old, status: this.flags[y][x].total > 0 };
+    const newFlag = this.flags[y][x].total > 0 !== old;
+    if (newFlag) {
+      this.uniqueFlags += this.flags[y][x].total > 0 ? 1 : -1;
+    }
+    return { newFlag , status: this.flags[y][x].total > 0 };
   }
 
   getVisibleBoard() {

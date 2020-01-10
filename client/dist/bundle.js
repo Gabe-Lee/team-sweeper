@@ -105,6 +105,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../env */ "./env.js");
 /* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_env__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _PlayerList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PlayerList */ "./client/src/PlayerList.jsx");
+/* harmony import */ var _StatusBoard__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./StatusBoard */ "./client/src/StatusBoard.jsx");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
@@ -138,6 +139,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
+
 var App =
 /*#__PURE__*/
 function (_React$Component) {
@@ -155,13 +157,14 @@ function (_React$Component) {
       safeCount: 0,
       timer: 0,
       deaths: 0,
+      flags: 0,
       status: 'NO GAME',
       player: '',
       playerList: {}
     };
 
     _this.onSpaceClick = function (event) {
-      if (event.target.disabled) return;
+      if (event.target.disabled || !event.target.dataset || !event.target.dataset.coord) return;
       _this.start = Date.now(); // PERFORMANCE CHECK !!!!!!!!!!!!!!!!
 
       var _event$target$dataset = event.target.dataset.coord.split('_').map(function (num) {
@@ -246,14 +249,9 @@ function (_React$Component) {
               _mineCount = _message$data2.mineCount,
               _deaths = _message$data2.deaths,
               died = _message$data2.died;
-          console.log(message.data);
           var _this2$state = _this2.state,
               status = _this2$state.status,
               player = _this2$state.player;
-
-          if (died === player) {
-            status = 'YOU DIED';
-          }
 
           var newBoard = _this2.state.board.slice();
 
@@ -287,13 +285,10 @@ function (_React$Component) {
               _status = _message$data4.status,
               _playerList = _message$data4.playerList;
 
-          if (_status === 'IN PROGRESS' && _this2.state.status === 'YOU DIED') {
-            _status === 'YOU DIED';
-          }
-
           _this2.setState({
             timer: _timer,
-            status: _status
+            status: _status,
+            playerList: _playerList
           });
         }
       };
@@ -309,14 +304,22 @@ function (_React$Component) {
           deaths = _this$state.deaths,
           status = _this$state.status,
           player = _this$state.player,
-          playerList = _this$state.playerList;
+          playerList = _this$state.playerList,
+          flags = _this$state.flags;
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "app"
       }, player === '' ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_NameEntry__WEBPACK_IMPORTED_MODULE_3__["default"], {
         onNameSubmit: this.onNameSubmit
       }) : '', react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "game-holder"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, "Mines Left: ".concat(mineCount, ", Safe Spaces Left: ").concat(safeCount, ", Time Left: ").concat(timer, ", Deaths: ").concat(deaths, ", Status: ").concat(status)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Board__WEBPACK_IMPORTED_MODULE_2__["default"], {
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_StatusBoard__WEBPACK_IMPORTED_MODULE_6__["default"], {
+        mineCount: mineCount,
+        safeCount: safeCount,
+        timer: timer,
+        deaths: deaths,
+        status: status,
+        flags: flags
+      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Board__WEBPACK_IMPORTED_MODULE_2__["default"], {
         board: board,
         onSpaceClick: this.onSpaceClick,
         onSpaceFlag: this.onSpaceFlag
@@ -550,12 +553,12 @@ function (_PureComponent) {
         className: "player-list"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "header"
-      }, "Connected Players"), names.map(function (name) {
+      }, "Players"), names.map(function (name) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
           className: "player-row"
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-          className: "alive"
-        }, playerList[name].alive), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+          className: playerList[name].alive ? 'status alive' : 'status dead'
+        }, playerList[name].alive ? '✔' : '☠'), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
           className: "name"
         }, name), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
           className: "score"
@@ -624,7 +627,7 @@ function (_PureComponent) {
           coord = _this$props.coord,
           mines = _this$props.mines;
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-        className: "space",
+        className: "space mines_".concat(mines),
         alt: "value",
         type: "button",
         disabled: mines >= 0 || mines < -2,
@@ -658,6 +661,84 @@ Space.propTypes = {
 
 /***/ }),
 
+/***/ "./client/src/StatusBoard.jsx":
+/*!************************************!*\
+  !*** ./client/src/StatusBoard.jsx ***!
+  \************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return StatusBoard; });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/.pnpm/registry.npmjs.org/react/16.12.0/node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+var StatusBoard =
+/*#__PURE__*/
+function (_PureComponent) {
+  _inherits(StatusBoard, _PureComponent);
+
+  function StatusBoard() {
+    _classCallCheck(this, StatusBoard);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(StatusBoard).apply(this, arguments));
+  }
+
+  _createClass(StatusBoard, [{
+    key: "render",
+    value: function render() {
+      var _this$props = this.props,
+          mineCount = _this$props.mineCount,
+          safeCount = _this$props.safeCount,
+          timer = _this$props.timer,
+          deaths = _this$props.deaths,
+          status = _this$props.status,
+          flags = _this$props.flags;
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "status-board"
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "mines"
+      }, "Mines: ", mineCount), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "safes"
+      }, "Safes: ", safeCount), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "status"
+      }, status), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "deaths"
+      }, "Deaths: ", deaths), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "flags"
+      }, "Flags: ", flags), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "timer"
+      }, timer < 0 ? 'Next Game: ' : 'Time Left: ', timer));
+    }
+  }]);
+
+  return StatusBoard;
+}(react__WEBPACK_IMPORTED_MODULE_0__["PureComponent"]);
+
+
+
+/***/ }),
+
 /***/ "./client/src/index.jsx":
 /*!******************************!*\
   !*** ./client/src/index.jsx ***!
@@ -684,15 +765,14 @@ react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render(react__WEBPACK_IMPORTED_
   !*** ./env.js ***!
   \****************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 module.exports.local = {
   env: {
     PORT: 5555,
     HOST: 'localhost',
-    URL: 'https://team-sweeper.herokuapp.com',
-    SOCKET: 'wss://team-sweeper.herokuapp.com',
-    CLIENT: 'DEV'
+    URL:  false ? undefined : 'http://localhost:5555',
+    SOCKET:  false ? undefined : 'ws://localhost:5555'
   }
 };
 

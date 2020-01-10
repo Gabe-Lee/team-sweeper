@@ -6,7 +6,7 @@ export default class Space extends PureComponent {
     const { coord, mines } = this.props;
     return (
       <button
-        className="space"
+        className={`space mines_${mines}`}
         alt="value"
         type="button"
         disabled={mines >= 0 || mines < -2}

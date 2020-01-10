@@ -48,6 +48,8 @@ server.ws('/game', (ws, req) => {
       safeCount: game.safeCount,
       timer: game.timer,
       status: game.status,
+      deaths: game.deaths,
+      flags: game.uniqueFlags,
     },
   }));
   ws.on('message', (message) => {
@@ -68,7 +70,7 @@ server.ws('/game', (ws, req) => {
         const { newFlag, status } = game.flagPosition(y, x, player);
         if (newFlag) {
           serverWs.getWss('/game').clients.forEach((client) => {
-            client.send(JSON.stringify({ type: 'FLAGGED', data: { x, y, space: status ? -2 : -1 }}));
+            client.send(JSON.stringify({ type: 'FLAGGED', data: { x, y, space: status ? -2 : -1, flags: game.uniqueFlags }}));
           });
         }
       }

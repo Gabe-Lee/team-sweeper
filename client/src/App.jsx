@@ -4,6 +4,7 @@ import Board from './Board';
 import NameEntry from './NameEntry';
 import { local } from '../../env';
 import PlayerList from './PlayerList';
+import StatusBoard from './StatusBoard';
 
 export default class App extends React.Component {
   constructor() {
@@ -14,13 +15,14 @@ export default class App extends React.Component {
       safeCount: 0,
       timer: 0,
       deaths: 0,
+      flags: 0,
       status: 'NO GAME',
       player: '',
       playerList: {},
     };
 
     this.onSpaceClick = (event) => {
-      if (event.target.disabled) return;
+      if (event.target.disabled || !event.target.dataset || !event.target.dataset.coord) return;
       this.start = Date.now(); // PERFORMANCE CHECK !!!!!!!!!!!!!!!!
       const [y, x] = event.target.dataset.coord.split('_').map((num) => Number(num));
       this.socket.send(JSON.stringify({
@@ -53,11 +55,8 @@ export default class App extends React.Component {
         this.setState({ board, mineCount, safeCount, timer, deaths, playerList });
       } else if (message.type === 'SWEPT') {
         const { spaces, safeCount, mineCount, deaths, died } = message.data;
-        console.log(message.data);
+        
         let { status, player } = this.state;
-        if (died === player) {
-          status = 'YOU DIED';
-        }
         const newBoard = this.state.board.slice();
         for (let i = 0; i < spaces.length; i += 1) {
           newBoard[spaces[i].y][spaces[i].x] = spaces[i].space;
@@ -70,23 +69,20 @@ export default class App extends React.Component {
         this.setState({ board: newBoard });
       } else if (message.type === 'TICK_TIME') {
         let { timer, status, playerList } = message.data;
-        if (status === 'IN PROGRESS' && this.state.status === 'YOU DIED') {
-          status === 'YOU DIED';
-        }
-        this.setState({ timer, status });
+        this.setState({ timer, status, playerList });
       } 
     };
   }
 
   render() {
     const {
-      board, mineCount, safeCount, timer, deaths, status, player, playerList,
+      board, mineCount, safeCount, timer, deaths, status, player, playerList, flags,
     } = this.state;
     return (
       <div className="app">
         {player === '' ? <NameEntry onNameSubmit={this.onNameSubmit} /> : '' }
         <div className="game-holder">
-          <div>{`Mines Left: ${mineCount}, Safe Spaces Left: ${safeCount}, Time Left: ${timer}, Deaths: ${deaths}, Status: ${status}`}</div>
+          <StatusBoard mineCount={mineCount} safeCount={safeCount} timer={timer} deaths={deaths} status={status} flags={flags} />
           <Board board={board} onSpaceClick={this.onSpaceClick} onSpaceFlag={this.onSpaceFlag} />
         </div>
         <PlayerList playerList={playerList} />
