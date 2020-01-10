@@ -157,7 +157,7 @@ function (_React$Component) {
       deaths: 0,
       status: 'NO GAME',
       player: '',
-      playerList: []
+      playerList: {}
     };
 
     _this.onSpaceClick = function (event) {
@@ -545,7 +545,7 @@ function (_PureComponent) {
     key: "render",
     value: function render() {
       var playerList = this.props.playerList;
-      var names = Object.keys(playerList);
+      var names = Object.keys(playerList || {});
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "player-list"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {

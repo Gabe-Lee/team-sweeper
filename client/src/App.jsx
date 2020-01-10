@@ -16,7 +16,7 @@ export default class App extends React.Component {
       deaths: 0,
       status: 'NO GAME',
       player: '',
-      playerList: [],
+      playerList: {},
     };
 
     this.onSpaceClick = (event) => {

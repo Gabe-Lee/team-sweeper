@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 export default class PlayerList extends PureComponent {
   render() {
     const { playerList } = this.props;
-    const names = Object.keys(playerList);
+    const names = Object.keys(playerList || {});
     return (
       <div className="player-list">
         <div className="header">Connected Players</div>
