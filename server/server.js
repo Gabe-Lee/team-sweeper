@@ -22,7 +22,7 @@ server.tickTime = () => {
           safeCount: game.safeCount,
           timer: game.timer,
           status: game.status,
-        }
+        },
       }));
     });
   }
