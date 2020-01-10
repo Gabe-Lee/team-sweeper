@@ -7,7 +7,7 @@ export default class PlayerList extends PureComponent {
     return (
       <div className="player-list">
         <div className="header">Players</div>
-        {names.sort((a, b) => (playerList[a].score > playerList[a].score) ? 1 : -1 ).map((name) => (
+        {names.sort((a, b) => (playerList[a].score > playerList[b].score) ? 1 : -1 ).map((name) => (
           <div className="player-row">
             <div className={playerList[name].alive ? 'status alive' : 'status dead'}>{playerList[name].alive ? '✔' : '☠' }</div>
             <div className="name">{name}</div>
