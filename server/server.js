@@ -12,7 +12,7 @@ const server = express();
 const serverSSL = https.createServer({
   key: fs.readFileSync('server.key'),
   cert: fs.readFileSync('server.cert'),
-});
+}, server);
 const serverWs = expressWs(server, serverSSL);
 
 let game = new SweeperGame(20, 20, 900);
