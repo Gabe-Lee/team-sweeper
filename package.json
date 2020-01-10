@@ -31,7 +31,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
-    "mongoose": "^4.13.20",
+    "mongodb": "^3.4.1",
     "prop-types": "^15.7.2",
     "random-js": "^2.1.0",
     "react": "^16.12.0",

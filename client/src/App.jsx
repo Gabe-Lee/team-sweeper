@@ -17,7 +17,7 @@ export default class App extends React.Component {
       deaths: 0,
       flags: 0,
       status: 'NO GAME',
-      player: '',
+      player: {},
       playerList: {},
     };
 
@@ -27,7 +27,7 @@ export default class App extends React.Component {
       const [y, x] = event.target.dataset.coord.split('_').map((num) => Number(num));
       this.socket.send(JSON.stringify({
         type: 'SWEEP',
-        data: { y, x, player: this.state.player },
+        data: { y, x, player: this.state.player.name },
       }));
     };
 
@@ -36,7 +36,7 @@ export default class App extends React.Component {
       const [y, x] = event.target.dataset.coord.split('_').map((num) => Number(num));
       this.socket.send(JSON.stringify({
         type: 'FLAG',
-        data: { y, x, player: this.state.player },
+        data: { y, x, player: this.state.player.name },
       }));
     };
 
@@ -74,6 +74,10 @@ export default class App extends React.Component {
       } else if (message.type === 'TICK_TIME') {
         let { timer, status, playerList } = message.data;
         this.setState({ timer, status, playerList });
+      } else if (message.type === 'LOGGED') {
+        let newPlayer = message.data.user;
+        console.log(newPlayer)
+        this.setState({ player: newPlayer });
       } 
     };
   }
@@ -84,7 +88,7 @@ export default class App extends React.Component {
     } = this.state;
     return (
       <div className="app">
-        {player === '' ? <Login onLoginSubmit={this.onLoginSubmit} /> : '' }
+        {player.name === undefined ? <Login onLoginSubmit={this.onLoginSubmit} /> : '' }
         <div className="game-holder">
           <StatusBoard mineCount={mineCount} safeCount={safeCount} timer={timer} deaths={deaths} status={status} flags={flags} />
           <Board board={board} onSpaceClick={this.onSpaceClick} onSpaceFlag={this.onSpaceFlag} />

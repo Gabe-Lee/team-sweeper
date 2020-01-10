@@ -50,15 +50,16 @@
   height: auto;
 }
 #app-root .app .player-list .header {
+  text-align: center;
   font-size: 1.5rem;
 }
 #app-root .app .player-list .player-row {
   display: grid;
   grid-template-columns: 2fr 6fr 2fr;
+  font-size: 1.25rem;
 }
 #app-root .app .player-list .player-row .status {
   text-align: center;
-  font-size: 1.25rem;
 }
 #app-root .app .player-list .player-row .status.alive {
   color: green;

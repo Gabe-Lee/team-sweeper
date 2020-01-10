@@ -159,7 +159,7 @@ function (_React$Component) {
       deaths: 0,
       flags: 0,
       status: 'NO GAME',
-      player: '',
+      player: {},
       playerList: {}
     };
 
@@ -179,7 +179,7 @@ function (_React$Component) {
         data: {
           y: y,
           x: x,
-          player: _this.state.player
+          player: _this.state.player.name
         }
       }));
     };
@@ -199,7 +199,7 @@ function (_React$Component) {
         data: {
           y: y,
           x: x,
-          player: _this.state.player
+          player: _this.state.player.name
         }
       }));
     };
@@ -296,6 +296,13 @@ function (_React$Component) {
             status: _status,
             playerList: _playerList
           });
+        } else if (message.type === 'LOGGED') {
+          var newPlayer = message.data.user;
+          console.log(newPlayer);
+
+          _this2.setState({
+            player: newPlayer
+          });
         }
       };
     }
@@ -314,7 +321,7 @@ function (_React$Component) {
           flags = _this$state.flags;
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "app"
-      }, player === '' ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Login__WEBPACK_IMPORTED_MODULE_3__["default"], {
+      }, player.name === undefined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Login__WEBPACK_IMPORTED_MODULE_3__["default"], {
         onLoginSubmit: this.onLoginSubmit
       }) : '', react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "game-holder"

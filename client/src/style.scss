@@ -73,14 +73,15 @@ $MAX_WIDTH: 1200px;
       width: 10%;
       height: auto;
       .header {
+        text-align: center;
         font-size: 1.5rem;
       }
       .player-row {
         display: grid;
         grid-template-columns: 2fr 6fr 2fr;
+        font-size: 1.25rem;
         .status {
           text-align: center;
-          font-size: 1.25rem;
           &.alive {
             color: $ALIVE_COLOR;
           }

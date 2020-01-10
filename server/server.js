@@ -81,20 +81,26 @@ server.ws('/game', (ws, req) => {
         db.getUser(name)
           .then((user) => {
             console.log(user)
-            if (user.name === undefined) {
+            if (user === null) {
               return crypt.createHash(password)
-                .then((hash) => {
-                  return db.addUser(name, hash);
-                });
+                .then((hash) => db.addUser(name, hash));
             }
             return crypt.compareHash(password, user.hash)
               .then((res) => {
                 if (!res) throw new Error('Password mismatch');
+                delete user.hash;
+                delete user._id;
                 return user;
               });
           })
           .then((user) => {
             ws.send(JSON.stringify({ type: 'LOGGED', data: { user }}));
+            if (game.players[user.name] === undefined) {
+              game.players[user.name] = {};
+              game.players[user.name].alive = true;
+              game.players[user.name].score = 0;
+            }
+            
           })
           .catch((err) => {
             console.log(err);
