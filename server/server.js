@@ -28,7 +28,7 @@ server.tickTime = () => {
     });
   }
   serverWs.getWss('/game').clients.forEach((client) => {
-    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer, status: game.status, playerList: game.playerList }}));
+    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer, status: game.status, playerList: game.players }}));
   });
   setTimeout(server.tickTime, 1000);
 };

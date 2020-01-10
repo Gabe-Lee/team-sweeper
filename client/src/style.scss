@@ -23,7 +23,7 @@ $MAX_WIDTH: 1200px;
   
   .app {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     max-width: 100vw;
@@ -42,45 +42,53 @@ $MAX_WIDTH: 1200px;
         z-index: 110;
         width: 50%;
         height: 50%;
+        left: 25%;
+        top: 25%;
         margin: auto;
       }
     }
-    .board {
-      display: grid;
-      border: 2px solid $UNSET_BORDER;
-      .space {
-        padding: 0;
-        min-width: 100%;
-        min-height: 100%;
-        background-color: $SPACE_FILL;
-        border: 2px outset $OUTSET_BORDER;
-        border-radius: none;
-        font-size: 1rem;
-        &:disabled {
-          border: 1px solid $UNSET_BORDER;
-        }
-        &:hover:enabled {
-          border: 2px outset lime;
-        }
-        .symbol {
-          font-weight: bold;
-          font-family: "Noto Sans";
-          &.mines_-3 { color: $MINE_COLOR }
-          &.mines_-2 { color: $FLAG_COLOR }
-          &.mines_-1 { color: none }
-          &.mines_0 { color: none }
-          &.mines_1 { color: $NEAR_COLOR_1 }
-          &.mines_2 { color: $NEAR_COLOR_2 }
-          &.mines_3 { color: $NEAR_COLOR_3 }
-          &.mines_4 { color: $NEAR_COLOR_4 }
-          &.mines_5 { color: $NEAR_COLOR_5 }
-          &.mines_6 { color: $NEAR_COLOR_6 }
-          &.mines_7 { color: $NEAR_COLOR_7 }
-          &.mines_8 { color: $NEAR_COLOR_8 }
-          &.mines_9 { color: $NEAR_COLOR_9 }
-          &.mines_10 { color: $NEAR_COLOR_10 }
-          &.mines_11 { color: $NEAR_COLOR_11 }
-          &.mines_12 { color: $NEAR_COLOR_12 }
+    .game-holder {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .board {
+        display: grid;
+        border: 2px solid $UNSET_BORDER;
+        .space {
+          padding: 0;
+          min-width: 100%;
+          min-height: 100%;
+          background-color: $SPACE_FILL;
+          border: 2px outset $OUTSET_BORDER;
+          border-radius: none;
+          font-size: 1rem;
+          &:disabled {
+            border: 1px solid $UNSET_BORDER;
+          }
+          &:hover:enabled {
+            border: 2px outset lime;
+          }
+          .symbol {
+            font-weight: bold;
+            font-family: "Noto Sans";
+            &.mines_-3 { color: $MINE_COLOR }
+            &.mines_-2 { color: $FLAG_COLOR }
+            &.mines_-1 { color: none }
+            &.mines_0 { color: none }
+            &.mines_1 { color: $NEAR_COLOR_1 }
+            &.mines_2 { color: $NEAR_COLOR_2 }
+            &.mines_3 { color: $NEAR_COLOR_3 }
+            &.mines_4 { color: $NEAR_COLOR_4 }
+            &.mines_5 { color: $NEAR_COLOR_5 }
+            &.mines_6 { color: $NEAR_COLOR_6 }
+            &.mines_7 { color: $NEAR_COLOR_7 }
+            &.mines_8 { color: $NEAR_COLOR_8 }
+            &.mines_9 { color: $NEAR_COLOR_9 }
+            &.mines_10 { color: $NEAR_COLOR_10 }
+            &.mines_11 { color: $NEAR_COLOR_11 }
+            &.mines_12 { color: $NEAR_COLOR_12 }
+          }
         }
       }
     }

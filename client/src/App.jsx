@@ -3,6 +3,7 @@ import axios from 'axios';
 import Board from './Board';
 import NameEntry from './NameEntry';
 import { local } from '../../env';
+import PlayerList from './PlayerList';
 
 export default class App extends React.Component {
   constructor() {
@@ -79,13 +80,16 @@ export default class App extends React.Component {
 
   render() {
     const {
-      board, mineCount, safeCount, timer, deaths, status, player,
+      board, mineCount, safeCount, timer, deaths, status, player, playerList,
     } = this.state;
     return (
       <div className="app">
         {player === '' ? <NameEntry onNameSubmit={this.onNameSubmit} /> : '' }
-        <div>{`Mines Left: ${mineCount}, Safe Spaces Left: ${safeCount}, Time Left: ${timer}, Deaths: ${deaths}, Status: ${status}`}</div>
-        <Board board={board} onSpaceClick={this.onSpaceClick} onSpaceFlag={this.onSpaceFlag} />
+        <div className="game-holder">
+          <div>{`Mines Left: ${mineCount}, Safe Spaces Left: ${safeCount}, Time Left: ${timer}, Deaths: ${deaths}, Status: ${status}`}</div>
+          <Board board={board} onSpaceClick={this.onSpaceClick} onSpaceFlag={this.onSpaceFlag} />
+        </div>
+        <PlayerList playerList={playerList} />
       </div>
     );
   }
