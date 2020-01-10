@@ -1,12 +1,18 @@
 const express = require('express');
 const expressWs = require('express-ws');
 const cors = require('cors')();
+const fs = require('fs');
+const https = require('https');
 const SweeperGame = require('./game.js');
 
 const json = express.json();
 const serveClient = express.static('client/dist');
-const server = express();
-const serverWs = expressWs(server);
+const serverEx = express();
+const server = https.createServer({
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.cert'),
+});
+const serverWs = expressWs(serverEx, server);
 
 let game = new SweeperGame(20, 20, 900);
 server.tickTime = () => {

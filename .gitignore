@@ -1,4 +1,7 @@
 node_modules
+# # SSL
+# server.cert
+# server.key
 # # Logs
 # logs
 # *.log
