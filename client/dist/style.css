@@ -8,6 +8,21 @@
   height: auto;
   margin: 0 auto;
 }
+#app-root .app .modal-forced {
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: gray;
+}
+#app-root .app .modal-forced .name-entry {
+  z-index: 110;
+  width: 50%;
+  height: 50%;
+  margin: auto;
+}
 #app-root .app .board {
   display: grid;
   border: 2px solid #aaa;

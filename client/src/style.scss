@@ -30,6 +30,21 @@ $MAX_WIDTH: 1200px;
     width: 100vw;
     height: auto;
     margin: 0 auto;
+    .modal-forced {
+      width: 100vw;
+      height: 100vh;
+      z-index: 100;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: rgba(128, 128, 128, 128);
+      .name-entry {
+        z-index: 110;
+        width: 50%;
+        height: 50%;
+        margin: auto;
+      }
+    }
     .board {
       display: grid;
       border: 2px solid $UNSET_BORDER;
