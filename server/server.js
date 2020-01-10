@@ -2,6 +2,7 @@ const express = require('express');
 const expressWs = require('express-ws');
 const cors = require('cors')();
 const fs = require('fs');
+const path = require('path');
 const https = require('https');
 const SweeperGame = require('./game.js');
 
@@ -9,8 +10,8 @@ const json = express.json();
 const serveClient = express.static('client/dist');
 const serverEx = express();
 const server = https.createServer({
-  key: fs.readFileSync('./server/server.key'),
-  cert: fs.readFileSync('./server/server.cert'),
+  key: fs.readFileSync(path.resolve(__dirname, '/server/server.key')),
+  cert: fs.readFileSync(path.resolve(__dirname, '/server/server.cert')),
 });
 const serverWs = expressWs(serverEx, server);
 
