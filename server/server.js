@@ -82,4 +82,4 @@ server.ws('/game', (ws, req) => {
   });
 });
 
-module.exports = serverSSL;
+module.exports = server;
