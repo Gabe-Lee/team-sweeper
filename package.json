@@ -27,6 +27,7 @@
   "homepage": "https://github.com/Gabe-Lee/team-sweeper#readme",
   "dependencies": {
     "axios": "^0.19.1",
+    "bcrypt": "^3.0.7",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",

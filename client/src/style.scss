@@ -40,13 +40,18 @@ $MAX_WIDTH: 1200px;
       top: 0;
       left: 0;
       background-color: rgba(128, 128, 128, 128);
-      .name-entry {
+      .login {
         position: relative;
         z-index: 110;
         width: 50%;
         height: 50%;
         left: 25%;
         top: 25%;
+        padding: 10px;
+        .input, .submit {
+          width: 100%;
+          height: auto;
+        }
       }
     }
     .status-board {

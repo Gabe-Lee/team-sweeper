@@ -2,6 +2,8 @@ const express = require('express');
 const expressWs = require('express-ws');
 const cors = require('cors')();
 const SweeperGame = require('./game.js');
+const db = require('../database/interface.js');
+const crypt = require('./crypt');
 
 const json = express.json();
 const serveClient = express.static('client/dist');
@@ -73,6 +75,31 @@ server.ws('/game', (ws, req) => {
             client.send(JSON.stringify({ type: 'FLAGGED', data: { x, y, space: status ? -2 : -1, flags: game.uniqueFlags }}));
           });
         }
+      } else if (data.type === 'LOGIN') {
+        const { name, password } = data.data;
+        console.log(name, password)
+        db.getUser(name)
+          .then((user) => {
+            console.log(user)
+            if (user.name === undefined) {
+              return crypt.createHash(password)
+                .then((hash) => {
+                  return db.addUser(name, hash);
+                });
+            }
+            return crypt.compareHash(password, user.hash)
+              .then((res) => {
+                if (!res) throw new Error('Password mismatch');
+                return user;
+              });
+          })
+          .then((user) => {
+            ws.send(JSON.stringify({ type: 'LOGGED', data: { user }}));
+          })
+          .catch((err) => {
+            console.log(err);
+            ws.send({type: 'ERROR'});
+          });
       }
     }
   });

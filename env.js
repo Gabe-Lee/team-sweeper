@@ -6,3 +6,11 @@ module.exports.local = {
     SOCKET: process.env.NODE_ENV === 'production' ? 'wss://team-sweeper.herokuapp.com' : 'ws://localhost:5555',
   },
 };
+
+module.exports.database = {
+  URL: 'mongodb+srv://Gabe:ElDvwRMgltwVMUkN@teamsweeper0-uxlss.mongodb.net/test?retryWrites=true&w=majority',
+  USER: 'Gabe',
+  DB: 'TeamSweeper',
+  USERS: 'Users',
+  PASS: 'ElDvwRMgltwVMUkN',
+};

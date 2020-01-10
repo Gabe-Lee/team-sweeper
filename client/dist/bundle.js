@@ -101,7 +101,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/.pnpm/registry.npmjs.org/axios/0.19.1/node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _Board__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Board */ "./client/src/Board.jsx");
-/* harmony import */ var _NameEntry__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./NameEntry */ "./client/src/NameEntry.jsx");
+/* harmony import */ var _Login__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Login */ "./client/src/Login.jsx");
 /* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../env */ "./env.js");
 /* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_env__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _PlayerList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PlayerList */ "./client/src/PlayerList.jsx");
@@ -204,12 +204,18 @@ function (_React$Component) {
       }));
     };
 
-    _this.onNameSubmit = function (event) {
-      var player = event.target.parentNode.childNodes[0].value;
+    _this.onLoginSubmit = function (event) {
+      var name = event.target.parentNode.childNodes[0].value;
+      var password = event.target.parentNode.childNodes[1].value;
+      console.log('info:', name, password);
 
-      _this.setState({
-        player: player
-      });
+      _this.socket.send(JSON.stringify({
+        type: 'LOGIN',
+        data: {
+          name: name,
+          password: password
+        }
+      }));
     };
 
     return _this;
@@ -308,8 +314,8 @@ function (_React$Component) {
           flags = _this$state.flags;
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "app"
-      }, player === '' ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_NameEntry__WEBPACK_IMPORTED_MODULE_3__["default"], {
-        onNameSubmit: this.onNameSubmit
+      }, player === '' ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Login__WEBPACK_IMPORTED_MODULE_3__["default"], {
+        onLoginSubmit: this.onLoginSubmit
       }) : '', react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "game-holder"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_StatusBoard__WEBPACK_IMPORTED_MODULE_6__["default"], {
@@ -432,16 +438,16 @@ Board.propTypes = {
 
 /***/ }),
 
-/***/ "./client/src/NameEntry.jsx":
-/*!**********************************!*\
-  !*** ./client/src/NameEntry.jsx ***!
-  \**********************************/
+/***/ "./client/src/Login.jsx":
+/*!******************************!*\
+  !*** ./client/src/Login.jsx ***!
+  \******************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return NameEntry; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Login; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/.pnpm/registry.npmjs.org/react/16.12.0/node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -464,37 +470,41 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-var NameEntry =
+var Login =
 /*#__PURE__*/
 function (_PureComponent) {
-  _inherits(NameEntry, _PureComponent);
+  _inherits(Login, _PureComponent);
 
-  function NameEntry() {
-    _classCallCheck(this, NameEntry);
+  function Login() {
+    _classCallCheck(this, Login);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(NameEntry).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(Login).apply(this, arguments));
   }
 
-  _createClass(NameEntry, [{
+  _createClass(Login, [{
     key: "render",
     value: function render() {
-      var onNameSubmit = this.props.onNameSubmit;
+      var onLoginSubmit = this.props.onLoginSubmit;
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "modal-forced"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "name-entry"
+        className: "login"
       }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
         className: "input",
-        placeholder: "Enter your name..."
+        placeholder: "Username"
+      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        className: "input",
+        type: "password",
+        placeholder: "Password"
       }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         className: "submit",
         type: "button",
-        onClick: onNameSubmit
-      }, "Connect")));
+        onClick: onLoginSubmit
+      }, "Login/Signup")));
     }
   }]);
 
-  return NameEntry;
+  return Login;
 }(react__WEBPACK_IMPORTED_MODULE_0__["PureComponent"]);
 
 
@@ -774,6 +784,13 @@ module.exports.local = {
     URL:  false ? undefined : 'http://localhost:5555',
     SOCKET:  false ? undefined : 'ws://localhost:5555'
   }
+};
+module.exports.database = {
+  URL: 'mongodb+srv://Gabe:ElDvwRMgltwVMUkN@teamsweeper0-uxlss.mongodb.net/test?retryWrites=true&w=majority',
+  USER: 'Gabe',
+  DB: 'TeamSweeper',
+  USERS: 'Users',
+  PASS: 'ElDvwRMgltwVMUkN'
 };
 
 /***/ }),

@@ -17,13 +17,18 @@
   left: 0;
   background-color: gray;
 }
-#app-root .app .modal-forced .name-entry {
+#app-root .app .modal-forced .login {
   position: relative;
   z-index: 110;
   width: 50%;
   height: 50%;
   left: 25%;
   top: 25%;
+  padding: 10px;
+}
+#app-root .app .modal-forced .login .input, #app-root .app .modal-forced .login .submit {
+  width: 100%;
+  height: auto;
 }
 #app-root .app .status-board {
   width: 100%;

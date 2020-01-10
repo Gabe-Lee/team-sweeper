@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import Board from './Board';
-import NameEntry from './NameEntry';
+import Login from './Login';
 import { local } from '../../env';
 import PlayerList from './PlayerList';
 import StatusBoard from './StatusBoard';
@@ -40,9 +40,14 @@ export default class App extends React.Component {
       }));
     };
 
-    this.onNameSubmit = (event) => {
-      const player = event.target.parentNode.childNodes[0].value;
-      this.setState({ player });
+    this.onLoginSubmit = (event) => {
+      const name = event.target.parentNode.childNodes[0].value;
+      const password = event.target.parentNode.childNodes[1].value;
+      console.log('info:',name, password)
+      this.socket.send(JSON.stringify({
+        type: 'LOGIN',
+        data: { name, password },
+      }));
     };
   }
 
@@ -55,7 +60,6 @@ export default class App extends React.Component {
         this.setState({ board, mineCount, safeCount, timer, deaths, playerList });
       } else if (message.type === 'SWEPT') {
         const { spaces, safeCount, mineCount, deaths, died } = message.data;
-        
         let { status, player } = this.state;
         const newBoard = this.state.board.slice();
         for (let i = 0; i < spaces.length; i += 1) {
@@ -80,7 +84,7 @@ export default class App extends React.Component {
     } = this.state;
     return (
       <div className="app">
-        {player === '' ? <NameEntry onNameSubmit={this.onNameSubmit} /> : '' }
+        {player === '' ? <Login onLoginSubmit={this.onLoginSubmit} /> : '' }
         <div className="game-holder">
           <StatusBoard mineCount={mineCount} safeCount={safeCount} timer={timer} deaths={deaths} status={status} flags={flags} />
           <Board board={board} onSpaceClick={this.onSpaceClick} onSpaceFlag={this.onSpaceFlag} />
