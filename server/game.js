@@ -3,7 +3,7 @@ const { MersenneTwister19937, bool } = require('random-js');
 const randEngine = MersenneTwister19937.autoSeed();
 
 class SweeperGame {
-  constructor(size = 20, density = 25, timer = 1000) {
+  constructor(size = 30, density = 25, timer = 600) {
     this.timer = timer;
     this.size = Math.max(size, 1);
     this.density = Math.min(Math.max(density, 1), 99);
@@ -79,9 +79,11 @@ class SweeperGame {
 
   playerIsAlive(player) {
     if (this.players[player] === undefined) {
-      this.players[player] = true;
+      this.players[player] = {};
+      this.players[player].alive = true;
+      this.players[player].score = 0;
     }
-    return this.players[player];
+    return this.players[player].alive;
   }
 
   recursiveSweep(children = [], swept = {}) {
@@ -115,7 +117,7 @@ class SweeperGame {
       ) return { spaces: [] };
     const wasMine = this.board[y][x] === -3;
     if (wasMine) {
-      this.players[player] = false;
+      this.players[player].alive = false;
       this.mineCount -= 1;
       this.deaths += 1;
       if (this.deaths >= 64) {
@@ -136,11 +138,11 @@ class SweeperGame {
         this.timer = 0;
       }
     }
-    return { spaces, safeCount: this.safeCount, mineCount: this.mineCount, deaths: this.deaths, died: this.players[player] ? '' : player };
+    return { spaces, safeCount: this.safeCount, mineCount: this.mineCount, deaths: this.deaths, died: this.players[player].alive ? '' : player };
   }
 
   flagPosition(y, x, player = 'anon') {
-    if (!this.playerIsAlive(player)) return -1;
+    if (!this.playerIsAlive(player)) return {};
     const old = this.flags[y][x].total > 0;
     this.flags[y][x].players[player] = this.flags[y][x].players[player] === undefined ? true : !this.flags[y][x].players[player];
     this.flags[y][x].total += this.flags[y][x].players[player] ? 1 : -1;

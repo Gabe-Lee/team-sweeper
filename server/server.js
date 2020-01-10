@@ -1,25 +1,18 @@
 const express = require('express');
 const expressWs = require('express-ws');
 const cors = require('cors')();
-const fs = require('fs');
-const path = require('path');
-// const https = require('https');
 const SweeperGame = require('./game.js');
 
 const json = express.json();
 const serveClient = express.static('client/dist');
 const server = express();
-// const serverSSL = https.createServer({
-//   key: fs.readFileSync('server.key'),
-//   cert: fs.readFileSync('server.cert'),
-// }, server);
 const serverWs = expressWs(server);
 
-let game = new SweeperGame(20, 20, 900);
+let game = new SweeperGame(30, 25, 900);
 server.tickTime = () => {
   game.timer -= 1;
   if (game.timer < -60) {
-    game = new SweeperGame(20, 20, 900);
+    game = new SweeperGame(30, 25, 900);
     serverWs.getWss('/game').clients.forEach((client) => {
       client.send(JSON.stringify({
         type: 'CURRENT_GAME',
@@ -29,12 +22,13 @@ server.tickTime = () => {
           safeCount: game.safeCount,
           timer: game.timer,
           status: game.status,
+          deaths: game.deaths,
         },
       }));
     });
   }
   serverWs.getWss('/game').clients.forEach((client) => {
-    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer, status: game.status }}));
+    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer, status: game.status, playerList: game.playerList }}));
   });
   setTimeout(server.tickTime, 1000);
 };
@@ -54,7 +48,7 @@ server.ws('/game', (ws, req) => {
       safeCount: game.safeCount,
       timer: game.timer,
       status: game.status,
-    }
+    },
   }));
   ws.on('message', (message) => {
     if (message === 'close') {

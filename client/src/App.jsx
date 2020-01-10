@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import Board from './Board';
+import NameEntry from './NameEntry';
 import { local } from '../../env';
 
 export default class App extends React.Component {
@@ -13,7 +14,8 @@ export default class App extends React.Component {
       timer: 0,
       deaths: 0,
       status: 'NO GAME',
-      player: 'DEV',
+      player: '',
+      playerList: [],
     };
 
     this.onSpaceClick = (event) => {
@@ -34,6 +36,11 @@ export default class App extends React.Component {
         data: { y, x, player: this.state.player },
       }));
     };
+
+    this.onNameSubmit = (event) => {
+      const player = event.target.parentNode.childNodes[0].value;
+      this.setState({ player });
+    };
   }
 
   componentDidMount() {
@@ -41,8 +48,8 @@ export default class App extends React.Component {
     this.socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === 'CURRENT_GAME') {
-        const { board, mineCount, safeCount, timer } = message.data;
-        this.setState({ board, mineCount, safeCount, timer });
+        const { board, mineCount, safeCount, timer, deaths, playerList } = message.data;
+        this.setState({ board, mineCount, safeCount, timer, deaths, playerList });
       } else if (message.type === 'SWEPT') {
         const { spaces, safeCount, mineCount, deaths, died } = message.data;
         console.log(message.data);
@@ -54,39 +61,29 @@ export default class App extends React.Component {
         for (let i = 0; i < spaces.length; i += 1) {
           newBoard[spaces[i].y][spaces[i].x] = spaces[i].space;
         }
-        /*
-        MAJOR SLOWDOWN DURING THE SET STATE (REDRAWING EVERY SPACE WHEN ONE SPACE UPDATES!!!!!)
-        */
-        console.log('Time before setState:',Date.now() - this.start,'ms')
-        this.setState({ board: newBoard, safeCount, mineCount, deaths, status }, () => {console.log('Time AFTER setState:',Date.now() - this.start,'ms')});
+        this.setState({ board: newBoard, safeCount, mineCount, deaths, status });
       } else if (message.type === 'FLAGGED') {
         const { x, y, space } = message.data;
         const newBoard = this.state.board.slice();
         newBoard[y][x] = space;
-        /*
-        MAJOR SLOWDOWN DURING THE SET STATE (REDRAWING EVERY SPACE WHEN ONE SPACE UPDATES!!!!!)
-        */
-        console.log('Time before setState:',Date.now() - this.start,'ms')
-        this.setState({ board: newBoard }, () => {console.log('Time AFTER setState:',Date.now() - this.start,'ms')});
+        this.setState({ board: newBoard });
       } else if (message.type === 'TICK_TIME') {
-        let { timer, status } = message.data;
+        let { timer, status, playerList } = message.data;
         if (status === 'IN PROGRESS' && this.state.status === 'YOU DIED') {
           status === 'YOU DIED';
         }
-        /*
-        MAJOR SLOWDOWN DURING THE SET STATE (REDRAWING EVERY SPACE WHEN ONE SPACE UPDATES!!!!!)
-        */
         this.setState({ timer, status });
-      }
-    } 
+      } 
+    };
   }
 
   render() {
     const {
-      board, mineCount, safeCount, timer, deaths, status
+      board, mineCount, safeCount, timer, deaths, status, player,
     } = this.state;
     return (
       <div className="app">
+        {player === '' ? <NameEntry onNameSubmit={this.onNameSubmit} /> : '' }
         <div>{`Mines Left: ${mineCount}, Safe Spaces Left: ${safeCount}, Time Left: ${timer}, Deaths: ${deaths}, Status: ${status}`}</div>
         <Board board={board} onSpaceClick={this.onSpaceClick} onSpaceFlag={this.onSpaceFlag} />
       </div>
