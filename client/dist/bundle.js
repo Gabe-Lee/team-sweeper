@@ -106,6 +106,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_env__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _PlayerList__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PlayerList */ "./client/src/PlayerList.jsx");
 /* harmony import */ var _StatusBoard__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./StatusBoard */ "./client/src/StatusBoard.jsx");
+/* harmony import */ var _server_actions__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../server/actions */ "./server/actions.js");
+/* harmony import */ var _server_actions__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_server_actions__WEBPACK_IMPORTED_MODULE_7__);
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
@@ -140,6 +142,7 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
+
 var App =
 /*#__PURE__*/
 function (_React$Component) {
@@ -153,6 +156,7 @@ function (_React$Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(App).call(this));
     _this.state = {
       board: [],
+      user: null,
       mineCount: 0,
       safeCount: 0,
       timer: 0,
@@ -174,8 +178,8 @@ function (_React$Component) {
           y = _event$target$dataset2[0],
           x = _event$target$dataset2[1];
 
-      _this.socket.send(JSON.stringify({
-        type: 'SWEEP',
+      _this.gameSocket.send(JSON.stringify({
+        type: _server_actions__WEBPACK_IMPORTED_MODULE_7___default.a.REQ_SWEEP,
         data: {
           y: y,
           x: x,
@@ -194,8 +198,8 @@ function (_React$Component) {
           y = _event$target$dataset4[0],
           x = _event$target$dataset4[1];
 
-      _this.socket.send(JSON.stringify({
-        type: 'FLAG',
+      _this.gameSocket.send(JSON.stringify({
+        type: _server_actions__WEBPACK_IMPORTED_MODULE_7___default.a.REQ_FLAG,
         data: {
           y: y,
           x: x,
@@ -209,15 +213,44 @@ function (_React$Component) {
       var password = event.target.parentNode.childNodes[2].value;
       var password2 = event.target.parentNode.childNodes[3].value;
       if (password !== password2) return;
+      axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/login', {
+        name: name,
+        password: password
+      }, {
+        baseURL: _env__WEBPACK_IMPORTED_MODULE_4__["server"].env.URL
+      }).then(function (response) {
+        console.log(response.data);
+        window.localStorage.setItem('session', response.data.session);
+      })["catch"](function () {
+        return console.log('login error');
+      });
+    }; // this.gameSocket.onmessage = (event) => {
+    //   const message = JSON.parse(event.data);
+    //   if (message.type === WS.SEND_CURRENT_GAME) {
+    //     const { board, mineCount, safeCount, timer, deaths, playerList } = message.data;
+    //     this.setState({ board, mineCount, safeCount, timer, deaths, playerList });
+    //   } else if (message.type === WS.SEND_SWEEP_RESULT) {
+    //     const { spaces, safeCount, mineCount, deaths, died } = message.data;
+    //     let { status, player } = this.state;
+    //     const newBoard = this.state.board.slice();
+    //     for (let i = 0; i < spaces.length; i += 1) {
+    //       newBoard[spaces[i].y][spaces[i].x] = spaces[i].space;
+    //     }
+    //     this.setState({ board: newBoard, safeCount, mineCount, deaths, status });
+    //   } else if (message.type === WS.SEND_FLAG_RESULT) {
+    //     const { x, y, space } = message.data;
+    //     const newBoard = this.state.board.slice();
+    //     newBoard[y][x] = space;
+    //     this.setState({ board: newBoard });
+    //   } else if (message.type === WS.SEND_GAME_STATS) {
+    //     let { timer, status, playerList } = message.data;
+    //     this.setState({ timer, status, playerList });
+    //   } else if (message.type === WS.SEND_USER) {
+    //     let newPlayer = message.data.user;
+    //     this.setState({ player: newPlayer });
+    //   }
+    // };
 
-      _this.socket.send(JSON.stringify({
-        type: 'LOGIN',
-        data: {
-          name: name,
-          password: password
-        }
-      }));
-    };
 
     return _this;
   }
@@ -227,88 +260,64 @@ function (_React$Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      this.socket = new WebSocket("".concat(_env__WEBPACK_IMPORTED_MODULE_4__["local"].env.SOCKET, "/game"));
-
-      this.socket.onopen = function (event) {
-        _this2.socket.send({
-          type: 'S_LOGIN'
+      axios__WEBPACK_IMPORTED_MODULE_1___default.a.post('/session', {
+        session: window.localStorage.getItem('session')
+      }, {
+        baseURL: _env__WEBPACK_IMPORTED_MODULE_4__["server"].env.URL
+      }).then(function (response) {
+        _this2.setState({
+          user: response.data
         });
-      };
 
-      this.socket.onmessage = function (event) {
-        var message = JSON.parse(event.data);
+        _this2.createSocket();
 
-        if (message.type === 'CURRENT_GAME') {
-          var _message$data = message.data,
-              board = _message$data.board,
-              mineCount = _message$data.mineCount,
-              safeCount = _message$data.safeCount,
-              timer = _message$data.timer,
-              deaths = _message$data.deaths,
-              playerList = _message$data.playerList;
+        console.log(response.data);
+      })["catch"](function () {
+        console.log('Session error');
+      });
+    }
+  }, {
+    key: "createSocket",
+    value: function createSocket() {
+      var _this3 = this;
 
-          _this2.setState({
-            board: board,
-            mineCount: mineCount,
-            safeCount: safeCount,
-            timer: timer,
-            deaths: deaths,
-            playerList: playerList
-          });
-        } else if (message.type === 'SWEPT') {
-          var _message$data2 = message.data,
-              spaces = _message$data2.spaces,
-              _safeCount = _message$data2.safeCount,
-              _mineCount = _message$data2.mineCount,
-              _deaths = _message$data2.deaths,
-              died = _message$data2.died;
-          var _this2$state = _this2.state,
-              status = _this2$state.status,
-              player = _this2$state.player;
+      this.gameSocket = new WebSocket(_env__WEBPACK_IMPORTED_MODULE_4__["server"].env.SOCKET);
 
-          var newBoard = _this2.state.board.slice();
+      this.gameSocket.onmessage = function (event) {
+        var _JSON$parse = JSON.parse(event.data),
+            type = _JSON$parse.type,
+            data = _JSON$parse.data;
 
-          for (var i = 0; i < spaces.length; i += 1) {
-            newBoard[spaces[i].y][spaces[i].x] = spaces[i].space;
-          }
+        switch (type) {
+          case _server_actions__WEBPACK_IMPORTED_MODULE_7___default.a.SEND_CURRENT_GAME:
+            _this3.setState(message.data);
 
-          _this2.setState({
-            board: newBoard,
-            safeCount: _safeCount,
-            mineCount: _mineCount,
-            deaths: _deaths,
-            status: status
-          });
-        } else if (message.type === 'FLAGGED') {
-          var _message$data3 = message.data,
-              x = _message$data3.x,
-              y = _message$data3.y,
-              space = _message$data3.space;
+            break;
 
-          var _newBoard = _this2.state.board.slice();
-
-          _newBoard[y][x] = space;
-
-          _this2.setState({
-            board: _newBoard
-          });
-        } else if (message.type === 'TICK_TIME') {
-          var _message$data4 = message.data,
-              _timer = _message$data4.timer,
-              _status = _message$data4.status,
-              _playerList = _message$data4.playerList;
-
-          _this2.setState({
-            timer: _timer,
-            status: _status,
-            playerList: _playerList
-          });
-        } else if (message.type === 'LOGGED') {
-          var newPlayer = message.data.user;
-
-          _this2.setState({
-            player: newPlayer
-          });
+          default:
+            break;
+          // case WS.SEND_SWEEP_RESULT:
+          //   const { spaces, safeCount, mineCount, deaths, died } = message.data;
+          //   let { status, player } = this.state;
+          //   const newBoard = this.state.board.slice();
+          //   for (let i = 0; i < spaces.length; i += 1) {
+          //     newBoard[spaces[i].y][spaces[i].x] = spaces[i].space;
+          //   }
+          //   this.setState({ board: newBoard, safeCount, mineCount, deaths, status });
+          //   break;
+          // case WS.SEND_FLAG_RESULT:
+          //   const { x, y, space } = message.data;
+          //   const newBoard = this.state.board.slice();
+          //   newBoard[y][x] = space;
+          //   this.setState({ board: newBoard });
+          //   break;
+          // case WS.SEND_GAME_STATS:
+          //   let { timer, status, playerList } = message.data;
+          //   this.setState({ timer, status, playerList });
+          //   break;
+          // case WS.SEND_USER:
+          //   let newPlayer = message.data.user;
+          //   this.setState({ player: newPlayer });
         }
       };
     }
@@ -798,7 +807,7 @@ react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render(react__WEBPACK_IMPORTED_
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(process) {module.exports.local = {
+/* WEBPACK VAR INJECTION */(function(process) {module.exports.server = {
   env: {
     PORT: 5555,
     HOST: 'localhost',
@@ -35566,6 +35575,33 @@ if (false) {} else {
   module.exports = __webpack_require__(/*! ./cjs/scheduler-tracing.development.js */ "./node_modules/.pnpm/registry.npmjs.org/scheduler/0.18.0/node_modules/scheduler/cjs/scheduler-tracing.development.js");
 }
 
+
+/***/ }),
+
+/***/ "./server/actions.js":
+/*!***************************!*\
+  !*** ./server/actions.js ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = {
+  // User requests
+  REQ_USER_LOGIN: 'REQ_USER_LOGIN',
+  REQ_SESSION_LOGIN: 'REQ_SESSION_LOGIN',
+  REQ_CURRENT_GAME: 'REQ_CURRENT_GAME',
+  REQ_SWEEP: 'REQ_SWEEP',
+  REQ_FLAG: 'REQ_FLAG',
+  REQ_CLOSE: 'REQ_CLOSE',
+  REQ_LOGOUT: 'REQ_LOGOUT',
+  // Server responses
+  SEND_USER: 'SEND_USER',
+  SEND_CURRENT_GAME: 'SEND_CURRENT_GAME',
+  SEND_SWEEP_RESULT: 'SEND_SWEEP_RESULT',
+  SEND_FLAG_RESULT: 'SEND_FLAG_RESULT',
+  SEND_GAME_STATS: 'SEND_GAME_STATS',
+  SEND_ERROR: 'SEND_ERROR'
+};
 
 /***/ })
 

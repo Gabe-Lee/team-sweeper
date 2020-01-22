@@ -1,4 +1,4 @@
-module.exports.local = {
+module.exports.server = {
   env: {
     PORT: 5555,
     HOST: 'localhost',
