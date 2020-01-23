@@ -9,4 +9,4 @@ const userSchema = new mongoose.Schema({
   time_alive: Number,
 });
 
-module.exports.User = mongoose.model('User', userSchema);;
+module.exports.User = mongoose.model('User', userSchema);

@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 const { MersenneTwister19937, bool } = require('random-js');
 
 const randEngine = MersenneTwister19937.autoSeed();
@@ -48,11 +49,11 @@ class SweeperGame {
           }
           if (this.board[y][x] >= 0) {
             if (this.board[y][x] === 0 && (y === 0 || x === 0 || y === this.size - 1 || x === this.size - 1)) {
-              edgeStarts.push([y,x]);
+              edgeStarts.push([y, x]);
             } else if (this.board[y][x] === 0) {
-              centerStarts.push([y,x]);
+              centerStarts.push([y, x]);
             } else {
-              singleStarts.push([y,x]);
+              singleStarts.push([y, x]);
             }
           }
         }
@@ -66,19 +67,14 @@ class SweeperGame {
     } else if (singleStarts > 0) {
       start = singleStarts[Math.floor(Math.random() * singleStarts.length)];
     }
-    let spaces = [{y: start[0], x: start[1]}]
-    spaces = spaces.concat(this.recursiveSweep(spaces, {[`${start[0]}_${start[1]}`]: true}));
+    let spaces = [{ y: start[0], x: start[1] }]
+    spaces = spaces.concat(this.recursiveSweep(spaces, { [`${start[0]}_${start[1]}`]: true }));
     for (let i = 0; i < spaces.length; i += 1) {
       this.visible[spaces[i].y][spaces[i].x] = true;
       this.safeCount -= 1;
     }
-    
+
   }
-  static neighbors = [
-    [-1,-1], [-1, 0], [-1, 1],
-    [0, -1],          [ 0, 1],
-    [1, -1], [ 1, 0], [ 1, 1],
-  ];
 
   playerIsAlive(player) {
     if (this.players[player] === undefined) {
@@ -94,15 +90,15 @@ class SweeperGame {
     let recurseChildren = [];
     let sweepChildren = [];
     for (let i = 0; i < children.length; i += 1) {
-      const {y, x} = children[i];
+      const { y, x } = children[i];
       for (let n = 0; n < SweeperGame.neighbors.length; n += 1) {
         const yy = y + SweeperGame.neighbors[n][0];
         const xx = x + SweeperGame.neighbors[n][1];
         if (yy >= 0 && yy < this.size && xx >= 0 && xx < this.size && this.board[yy][xx] !== -3 && swept[`${yy}_${xx}`] === undefined) {
-          sweepChildren.push({y: yy, x: xx, space: this.board[yy][xx]});
+          sweepChildren.push({ y: yy, x: xx, space: this.board[yy][xx] });
           swept[`${yy}_${xx}`] = true;
           if (this.board[yy][xx] === 0) {
-            recurseChildren.push({y: yy, x: xx, space: this.board[yy][xx]});
+            recurseChildren.push({ y: yy, x: xx, space: this.board[yy][xx] });
           }
         }
       }
@@ -113,11 +109,11 @@ class SweeperGame {
 
   sweepPosition(y, x, player = 'anon') {
     if (
-        this.status === 'GAME OVER' ||
-        this.status === 'GAME CLEAR' ||
-        this.status === 'TIME OUT' ||
-        !this.playerIsAlive(player)
-      ) return { spaces: [] };
+      this.status === 'GAME OVER' ||
+      this.status === 'GAME CLEAR' ||
+      this.status === 'TIME OUT' ||
+      !this.playerIsAlive(player)
+    ) return { spaces: [] };
     const wasMine = this.board[y][x] === -3;
     if (wasMine) {
       this.players[player].alive = false;
@@ -128,12 +124,12 @@ class SweeperGame {
         this.timer = 0;
       }
     }
-    let spaces = [{y, x, space: this.board[y][x]}];
+    let spaces = [{ y, x, space: this.board[y][x] }];
     if (!wasMine) {
       this.players[player].score += 1;
     }
     if (!wasMine && this.board[y][x] === 0) {
-      spaces = spaces.concat(this.recursiveSweep(spaces, {[`${y}_${x}`]: true}))
+      spaces = spaces.concat(this.recursiveSweep(spaces, { [`${y}_${x}`]: true }))
     }
     for (let i = 0; i < spaces.length; i += 1) {
       this.visible[spaces[i].y][spaces[i].x] = true;
@@ -156,7 +152,7 @@ class SweeperGame {
     if (newFlag) {
       this.uniqueFlags += this.flags[y][x].total > 0 ? 1 : -1;
     }
-    return { newFlag , status: this.flags[y][x].total > 0 };
+    return { newFlag, status: this.flags[y][x].total > 0 };
   }
 
   getVisibleBoard() {
@@ -180,5 +176,19 @@ class SweeperGame {
     return this.board;
   }
 }
+SweeperGame.neighbors = [
+  [-1, -1], [-1, 0], [-1, 1],
+  [0, -1], [0, 1],
+  [1, -1], [1, 0], [1, 1],
+];
 
 module.exports = SweeperGame;
+module.exports.FLAGS = {
+  NONE: 0,
+  ENDED: 1 << 0,
+  DEAD: 1 << 1,
+  TIMEOUT: 1 << 2,
+  CLEARED: 1 << 3,
+  ALLDEAD: 1 << 4,
+  WAITING: 1 << 5,
+};
