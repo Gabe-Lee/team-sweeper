@@ -23,14 +23,17 @@ server.tickTime = () => {
     game = new SweeperGame(30, 25, 900);
     serverWs.getWss('/game').clients.forEach((client) => {
       client.send(JSON.stringify({
-        type: 'CURRENT_GAME',
+        type: WS.SEND_CURRENT_GAME,
         data: {
-          board: game.getVisibleBoard(),
-          mineCount: game.mineCount,
-          safeCount: game.safeCount,
-          timer: game.timer,
-          status: game.status,
-          deaths: `${game.deaths}/${game.maxDeaths}`,
+          board: game.board,
+          stats: {
+            minesLeft: game.mineCount,
+            clearLeft: game.safeCount,
+            timer: game.timer,
+            status: game.status,
+            deaths: `${game.deaths}/${game.maxDeaths}`,
+            flagCount: game.flagCount,
+          },
         },
       }));
     });
@@ -50,7 +53,7 @@ server.use('/', serveClient);
 
 server.post('/session', (req, res) => {
   const { session } = req.body;
-  console.log('session login:', session)
+  console.log('session login:', session);
   let sessionOwner = null;
   db.checkSession(session)
     .then((owner) => {
@@ -75,7 +78,6 @@ server.post('/session', (req, res) => {
           });
       }
     });
-
 });
 
 server.post('/login', (req, res) => {
@@ -110,18 +112,6 @@ server.post('/login', (req, res) => {
 });
 
 server.ws('/game', (ws, req) => {
-  // ws.send(JSON.stringify({
-  //   type: 'CURRENT_GAME',
-  //   data: {
-  //     board: game.getVisibleBoard(),
-  //     mineCount: game.mineCount,
-  //     safeCount: game.safeCount,
-  //     timer: game.timer,
-  //     status: game.status,
-  //     deaths: `${game.deaths}/${game.maxDeaths}`,
-  //     flags: game.uniqueFlags,
-  //   },
-  // }));
   ws.on('message', (msgStr) => {
     console.log('msgStr:', msgStr);
     console.log('string msgStr:', JSON.stringify(msgStr));
@@ -137,43 +127,22 @@ server.ws('/game', (ws, req) => {
         ws.close();
         break;
 
-      // case WS.REQ_SESSION_LOGIN:
-      //   db.checkSession(sessionUuid)
-      //     .then((session) => {
-      //       if (session === null
-      //         || session.loggedIn !== true
-      //         || session.owner === null
-      //         || session.uuid === undefined
-      //         || session.expires < Date.now()) {
-      //         ws.send({ type: WS.SEND_ERROR, data: 'Session Not Valid For Login' });
-      //       } else {
-      //         db.getUser(session.owner)
-      //           .then((user) => {
-      //             delete user._id;
-      //             delete user.hash;
-      //             ws.send({ type: WS.SEND_USER, data: user });
-      //           });
-      //       }
-      //     });
-      //   break;
-
-      // case WS.REQ_USER_LOGIN:
-      //   console.log('type: ', type)
-      //   db.getUser(data.name)
-      //     .then((user) => crypt.compareHash(data.password, user.hash))
-      //     .then((matches) => {
-      //       if (!matches) {
-      //         ws.send({ type: WS.SEND_ERROR, data: 'Password Mismatch' });
-      //       } else {
-      //         db.getUser(data.name)
-      //           .then((user) => {
-      //             delete user.hash;
-      //             delete user._id;
-      //             ws.send({ type: WS.SEND_USER, data: user });
-      //           });
-      //       }
-      //     });
-      //   break;
+      case WS.REQ_CURRENT_GAME:
+        ws.send(JSON.stringify({
+          type: WS.SEND_CURRENT_GAME,
+          data: {
+            board: game.getVisibleBoard(),
+            stats: {
+              minesLeft: game.mineCount,
+              clearLeft: game.safeCount,
+              status: game.status,
+              timer: game.timer,
+              deaths: `${game.deaths}/${game.maxDeaths}`,
+              flagCount: game.flagCount,
+            },
+          },
+        }));
+        break;
 
       case WS.REQ_SWEEP:
         // eslint-disable-next-line no-case-declarations
@@ -184,9 +153,14 @@ server.ws('/game', (ws, req) => {
               type: WS.SEND_SWEEP_RESULT,
               data: {
                 spaces,
-                safeCount: game.safeCount,
-                mineCount: game.mineCount,
-                deaths: `${game.deaths}/${game.maxDeaths}`,
+                stats: {
+                  minesLeft: game.mineCount,
+                  clearLeft: game.safeCount,
+                  status: game.status,
+                  timer: game.timer,
+                  deaths: `${game.deaths}/${game.maxDeaths}`,
+                  flagCount: game.flagCount,
+                },
               },
             }));
           });
@@ -201,10 +175,15 @@ server.ws('/game', (ws, req) => {
             client.send(JSON.stringify({
               type: WS.SEND_FLAG_RESULT,
               data: {
-                x,
-                y,
-                space: status ? -2 : -1,
-                flags: game.uniqueFlags,
+                spaces: [{ x: data.x, y: data.y, space: -2 }],
+                stats: {
+                  minesLeft: game.mineCount,
+                  clearLeft: game.safeCount,
+                  status: game.status,
+                  timer: game.timer,
+                  deaths: `${game.deaths}/${game.maxDeaths}`,
+                  flagCount: game.flagCount,
+                },
               },
             }));
           });

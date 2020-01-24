@@ -40,17 +40,31 @@ $MAX_WIDTH: 1200px;
       top: 0;
       left: 0;
       background-color: rgba(128, 128, 128, 128);
+      display: flex;
+      justify-content: center;
+      align-items: center;
       .login {
-        position: relative;
+        background-color: white;
+        border-radius: 1rem;
+        display: flex;
+        flex-flow: row wrap;
+        padding: 0.75rem;
         z-index: 110;
         width: 50%;
-        height: 50%;
-        left: 25%;
-        top: 25%;
-        padding: 10px;
-        .input, .submit {
-          width: 100%;
-          height: auto;
+        height: auto;
+        & > * {
+          margin: 0.25rem;
+          padding: 0.25rem;
+        }
+        .input, .header, .loading {
+          flex: 1 1 100%;
+          text-align: center;
+        }
+        .header, .loading {
+          font-size: 2rem;
+        }
+        .button {
+          flex: 1 1 25%;
         }
       }
     }
@@ -66,6 +80,7 @@ $MAX_WIDTH: 1200px;
         align-items: center;
         font-size: 1.5rem;
         height: 2rem;
+        padding: 0.25rem;
       }
     }
     .player-list {

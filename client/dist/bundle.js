@@ -100,19 +100,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/.pnpm/registry.npmjs.org/react-redux/7.1.3_cbb074364ace735d13d38692c50e064b/node_modules/react-redux/es/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/.pnpm/registry.npmjs.org/axios/0.19.1/node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _Board__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Board */ "./client/src/Board.jsx");
-/* harmony import */ var _Login__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Login */ "./client/src/Login.jsx");
-/* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../env */ "./env.js");
-/* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_env__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _PlayerList__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./PlayerList */ "./client/src/PlayerList.jsx");
-/* harmony import */ var _StatusBoard__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./StatusBoard */ "./client/src/StatusBoard.jsx");
-/* harmony import */ var _server_actions__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../server/actions */ "./server/actions.js");
-/* harmony import */ var _server_actions__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_server_actions__WEBPACK_IMPORTED_MODULE_8__);
-/* harmony import */ var _redux_actions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./redux/actions */ "./client/src/redux/actions.js");
-function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
-
-function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
-
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils */ "./client/src/utils.jsx");
+/* harmony import */ var _Board__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Board */ "./client/src/Board.jsx");
+/* harmony import */ var _Login__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Login */ "./client/src/Login.jsx");
+/* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../env */ "./env.js");
+/* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_env__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _PlayerList__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./PlayerList */ "./client/src/PlayerList.jsx");
+/* harmony import */ var _StatusBoard__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./StatusBoard */ "./client/src/StatusBoard.jsx");
+/* harmony import */ var _server_actions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../server/actions */ "./server/actions.js");
+/* harmony import */ var _server_actions__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_server_actions__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var _redux_actions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./redux/actions */ "./client/src/redux/actions.js");
+/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../server/game */ "./server/game.js");
+/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_server_game__WEBPACK_IMPORTED_MODULE_11__);
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -121,7 +120,9 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-/* eslint-disable no-case-declarations */
+/* eslint-disable no-bitwise */
+
+
 
 
 
@@ -134,6 +135,11 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 var App = function App() {
+  var _useState = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(false),
+      _useState2 = _slicedToArray(_useState, 2),
+      mounted = _useState2[0],
+      setMounted = _useState2[1];
+
   var board = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
     return store.board;
   });
@@ -157,72 +163,48 @@ var App = function App() {
   var webSocket = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
     return store.webSocket;
   });
+
+  var _useSelector2 = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
+    return store.login;
+  }),
+      gameJoined = _useSelector2.gameJoined;
+
   var dispatch = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useDispatch"])();
+  var sweepSpace = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(function (event) {
+    if (_utils__WEBPACK_IMPORTED_MODULE_3__["default"].spaceClickInvalid(event)) return;
 
-  var _useState = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(function (event) {
-    if (App.spaceClickInvalid(event)) return;
-
-    var _App$getCoordinates = App.getCoordinates(event),
-        _App$getCoordinates2 = _slicedToArray(_App$getCoordinates, 2),
-        y = _App$getCoordinates2[0],
-        x = _App$getCoordinates2[1];
+    var _utils$getCoordinates = _utils__WEBPACK_IMPORTED_MODULE_3__["default"].getCoordinates(event),
+        _utils$getCoordinates2 = _slicedToArray(_utils$getCoordinates, 2),
+        y = _utils$getCoordinates2[0],
+        x = _utils$getCoordinates2[1];
 
     webSocket.send(JSON.stringify({
-      type: _server_actions__WEBPACK_IMPORTED_MODULE_8___default.a.REQ_SWEEP,
+      type: _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.REQ_SWEEP,
       data: {
         y: y,
         x: x,
         player: player.name
       }
     }));
-  }),
-      _useState2 = _slicedToArray(_useState, 1),
-      onSpaceClick = _useState2[0];
+  });
+  var flagSpace = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(function (event) {
+    if (_utils__WEBPACK_IMPORTED_MODULE_3__["default"].spaceClickInvalid(event)) return;
 
-  var _useState3 = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(function (event) {
-    if (App.spaceClickInvalid(event)) return;
-
-    var _App$getCoordinates3 = App.getCoordinates(event),
-        _App$getCoordinates4 = _slicedToArray(_App$getCoordinates3, 2),
-        y = _App$getCoordinates4[0],
-        x = _App$getCoordinates4[1];
+    var _utils$getCoordinates3 = _utils__WEBPACK_IMPORTED_MODULE_3__["default"].getCoordinates(event),
+        _utils$getCoordinates4 = _slicedToArray(_utils$getCoordinates3, 2),
+        y = _utils$getCoordinates4[0],
+        x = _utils$getCoordinates4[1];
 
     webSocket.send(JSON.stringify({
-      type: _server_actions__WEBPACK_IMPORTED_MODULE_8___default.a.REQ_FLAG,
+      type: _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.REQ_FLAG,
       data: {
         y: y,
         x: x,
         player: player.name
       }
     }));
-  }),
-      _useState4 = _slicedToArray(_useState3, 1),
-      onSpaceFlag = _useState4[0];
-
-  var _useState5 = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(function (event) {
-    var _App$getLoginFields = App.getLoginFields(event),
-        name = _App$getLoginFields.name,
-        password = _App$getLoginFields.password,
-        password2 = _App$getLoginFields.password2;
-
-    if (password !== password2) return;
-    axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/login', {
-      name: name,
-      password: password
-    }, {
-      baseURL: _env__WEBPACK_IMPORTED_MODULE_5__["server"].env.URL
-    }).then(function (response) {
-      var uuid = response.data.session;
-      console.log('login session: ', uuid);
-      App.setSession(uuid);
-    })["catch"](function () {
-      return console.log('login error');
-    });
-  }),
-      _useState6 = _slicedToArray(_useState5, 1),
-      onLoginSubmit = _useState6[0];
-
-  var _useState7 = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(function (url) {
+  });
+  var createSocket = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(function (url) {
     var newWebSocket = new WebSocket(url);
 
     newWebSocket.onmessage = function (event) {
@@ -231,106 +213,86 @@ var App = function App() {
           data = _JSON$parse.data;
 
       switch (type) {
-        case _server_actions__WEBPACK_IMPORTED_MODULE_8___default.a.SEND_CURRENT_GAME:
-          var newBoard = data.newBoard,
-              newStats = _objectWithoutProperties(data, ["newBoard"]);
+        case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_CURRENT_GAME:
+          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["setBoard"])(data.board));
+          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateStats"])(data.stats));
+          break;
 
-          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_9__["setBoard"])(newBoard));
-          dispatch(updateStats(newStats));
+        case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_SWEEP_RESULT:
+          if (data.died === player.name) data.stats.status |= _server_game__WEBPACK_IMPORTED_MODULE_11__["FLAGS"].DEAD;
+          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateBoard"])(data.spaces));
+          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateStats"])(data.stats));
+          break;
+
+        case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_FLAG_RESULT:
+          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateStats"])(data.stats));
+          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateBoard"])(data.spaces));
+          break;
+
+        case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_GAME_STATS:
+          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateStats"])(data.stats));
+          break;
+
+        case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_USER:
+          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["setPlayer"])(data.player));
           break;
 
         default:
           break;
-
-        case _server_actions__WEBPACK_IMPORTED_MODULE_8___default.a.SEND_SWEEP_RESULT:
-          var changes = data.spaces,
-              died = data.died,
-              stats = _objectWithoutProperties(data, ["spaces", "died"]);
-
-          dispatch(updateBoard(spaces));
-          dispatch(updateStats(stats));
-          if (died === player.name) dispatch(updateStats);
-          break;
-        // case WS.SEND_FLAG_RESULT:
-        //   const { x, y, space } = message.data;
-        //   const newBoard = this.state.board.slice();
-        //   newBoard[y][x] = space;
-        //   this.setState({ board: newBoard });
-        //   break;
-        // case WS.SEND_GAME_STATS:
-        //   let { timer, status, playerList } = message.data;
-        //   this.setState({ timer, status, playerList });
-        //   break;
-        // case WS.SEND_USER:
-        //   let newPlayer = message.data.user;
-        //   this.setState({ player: newPlayer });
       }
     };
 
-    dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_9__["createWebSocket"])(newWebSocket));
-  }),
-      _useState8 = _slicedToArray(_useState7, 1),
-      createSocket = _useState8[0];
+    newWebSocket.onopen = function () {
+      newWebSocket.send(JSON.stringify({
+        type: _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.REQ_CURRENT_GAME
+      }));
+      console.log('sending message to: ', "".concat(_env__WEBPACK_IMPORTED_MODULE_6__["server"].env.SOCKET, "/game"), 'with message: ', _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.REQ_CURRENT_GAME);
+      dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["setGameJoined"])(true));
+    };
 
+    console.log(newWebSocket);
+    dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["createWebSocket"])(newWebSocket));
+  });
+  var joinGame = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(function () {
+    createSocket("".concat(_env__WEBPACK_IMPORTED_MODULE_6__["server"].env.SOCKET, "/game"));
+  });
   Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
+    setMounted(true);
     axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/session', {
-      session: App.getSession()
+      session: _utils__WEBPACK_IMPORTED_MODULE_3__["default"].getSession()
     }, {
-      baseURL: _env__WEBPACK_IMPORTED_MODULE_5__["server"].env.URL
+      baseURL: _env__WEBPACK_IMPORTED_MODULE_6__["server"].env.URL
     }).then(function (response) {
       var newUser = response.data;
-      if (newUser !== null) setUser(newUser);
+      if (newUser !== null) dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["setPlayer"])(newUser));
       console.log(newUser);
     })["catch"](function () {
       console.log('Session error');
+    })["finally"](function () {
+      return dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["setSessionAttempted"])());
     });
-  });
+  }, [mounted]);
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "app"
-  }, user.name === undefined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Login__WEBPACK_IMPORTED_MODULE_4__["default"], {
-    onLoginSubmit: onLoginSubmit
-  }) : '', react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+  }, player.name === undefined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Login__WEBPACK_IMPORTED_MODULE_5__["default"], null) : gameJoined ? '' : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+    type: "button",
+    onClick: joinGame
+  }, "Join Game"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "game-holder"
-  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_StatusBoard__WEBPACK_IMPORTED_MODULE_7__["default"], {
-    mineCount: mineCount,
-    safeCount: safeCount,
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_StatusBoard__WEBPACK_IMPORTED_MODULE_8__["default"], {
+    mineCount: minesLeft,
+    safeCount: clearLeft,
     timer: timer,
     deaths: deaths,
     status: status,
-    flags: flags
-  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Board__WEBPACK_IMPORTED_MODULE_3__["default"], {
+    flags: flagCount
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Board__WEBPACK_IMPORTED_MODULE_4__["default"], {
     board: board,
-    onSpaceClick: onSpaceClick,
-    onSpaceFlag: onSpaceFlag
-  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_PlayerList__WEBPACK_IMPORTED_MODULE_6__["default"], {
+    onSpaceClick: sweepSpace,
+    onSpaceFlag: flagSpace
+  })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_PlayerList__WEBPACK_IMPORTED_MODULE_7__["default"], {
     playerList: playerList
   }));
-};
-
-App.getSession = function () {
-  return window.localStorage.getItem('session');
-};
-
-App.setSession = function (uuid) {
-  return window.localStorage.setItem('session', uuid);
-};
-
-App.spaceClickInvalid = function (e) {
-  return e.target.disabled || !e.target.dataset || !e.target.dataset.coord;
-};
-
-App.getCoordinates = function (e) {
-  return e.target.dataset.coord.split('_').map(function (num) {
-    return Number(num);
-  });
-};
-
-App.getLoginFields = function (e) {
-  return {
-    name: e.target.parentNode.childNodes[1].value,
-    password: e.target.parentNode.childNodes[2].value,
-    password2: e.target.parentNode.childNodes[3].value
-  };
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (App);
@@ -442,73 +404,110 @@ Board.propTypes = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Login; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/.pnpm/registry.npmjs.org/react/16.12.0/node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/.pnpm/registry.npmjs.org/react-redux/7.1.3_cbb074364ace735d13d38692c50e064b/node_modules/react-redux/es/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/.pnpm/registry.npmjs.org/axios/0.19.1/node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils */ "./client/src/utils.jsx");
+/* harmony import */ var _redux_actions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./redux/actions */ "./client/src/redux/actions.js");
+/* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../env */ "./env.js");
+/* harmony import */ var _env__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_env__WEBPACK_IMPORTED_MODULE_5__);
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-var Login =
-/*#__PURE__*/
-function (_PureComponent) {
-  _inherits(Login, _PureComponent);
 
-  function Login() {
-    _classCallCheck(this, Login);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Login).apply(this, arguments));
+
+
+var MODE = {
+  SIGNUP: {
+    TEXT: 'Signup',
+    SWITCH: 'Have an account? Go to login.',
+    URL: '/signup'
+  },
+  LOGIN: {
+    TEXT: 'Login',
+    SWITCH: 'No account? Signup now!',
+    URL: '/login'
   }
+};
 
-  _createClass(Login, [{
-    key: "render",
-    value: function render() {
-      var onLoginSubmit = this.props.onLoginSubmit;
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "modal-forced"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "login"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "header"
-      }, "Login"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
-        className: "input",
-        placeholder: "Username"
-      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
-        className: "input",
-        type: "password",
-        placeholder: "Password"
-      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
-        className: "input",
-        type: "password",
-        placeholder: "Retype Password"
-      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-        className: "submit",
-        type: "button",
-        onClick: onLoginSubmit
-      }, "Login/Signup")));
+var Login = function Login() {
+  var dispatch = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useDispatch"])();
+
+  var _useState = Object(react__WEBPACK_IMPORTED_MODULE_0__["useState"])(MODE.LOGIN),
+      _useState2 = _slicedToArray(_useState, 2),
+      mode = _useState2[0],
+      setMode = _useState2[1];
+
+  var _useSelector = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
+    return store.login;
+  }),
+      sessionAttempted = _useSelector.sessionAttempted;
+
+  var submitLogin = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(function (event) {
+    var _utils$getLoginFields = _utils__WEBPACK_IMPORTED_MODULE_3__["default"].getLoginFields(event),
+        name = _utils$getLoginFields.name,
+        password = _utils$getLoginFields.password,
+        password2 = _utils$getLoginFields.password2;
+
+    if (mode.TEXT === MODE.SIGNUP.TEXT && password !== password2) return;
+    axios__WEBPACK_IMPORTED_MODULE_2___default.a.post(mode.URL, {
+      name: name,
+      password: password
+    }, {
+      baseURL: _env__WEBPACK_IMPORTED_MODULE_5__["server"].env.URL
+    }).then(function (response) {
+      _utils__WEBPACK_IMPORTED_MODULE_3__["default"].setSession(response.data.session);
+      dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_4__["setSession"])(response.data.session));
+      dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_4__["setPlayer"])(response.data.user));
+    })["catch"](function () {
+      return console.log('login error');
+    });
+  });
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "modal-forced"
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "login"
+  }, sessionAttempted ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "header"
+  }, mode.TEXT), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+    className: "username input",
+    placeholder: "Username"
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+    className: "password input",
+    type: "password",
+    placeholder: "Password"
+  }), mode.TEXT === MODE.SIGNUP.TEXT ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+    className: "password input",
+    type: "password",
+    placeholder: "Retype Password"
+  }) : '', react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+    className: "submit button",
+    type: "button",
+    "data-mode": mode.TEXT,
+    onClick: submitLogin
+  }, mode.TEXT), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+    className: "mode button",
+    type: "button",
+    "data-mode": mode.TEXT,
+    onClick: function onClick() {
+      return setMode(mode.TEXT === MODE.LOGIN.TEXT ? MODE.SIGNUP : MODE.LOGIN);
     }
-  }]);
+  }, mode.SWITCH)) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "loading"
+  }, "Loading")));
+};
 
-  return Login;
-}(react__WEBPACK_IMPORTED_MODULE_0__["PureComponent"]);
-
-
+/* harmony default export */ __webpack_exports__["default"] = (Login);
 
 /***/ }),
 
@@ -683,72 +682,49 @@ Space.propTypes = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return StatusBoard; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/.pnpm/registry.npmjs.org/react/16.12.0/node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/.pnpm/registry.npmjs.org/react-redux/7.1.3_cbb074364ace735d13d38692c50e064b/node_modules/react-redux/es/index.js");
+/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../server/game */ "./server/game.js");
+/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_server_game__WEBPACK_IMPORTED_MODULE_2__);
+var _STATUS;
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
 
-var StatusBoard =
-/*#__PURE__*/
-function (_PureComponent) {
-  _inherits(StatusBoard, _PureComponent);
 
-  function StatusBoard() {
-    _classCallCheck(this, StatusBoard);
+var STATUS = (_STATUS = {}, _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].NONE, 'NO GAME'), _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].DEAD, 'DEAD'), _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].TIMEOUT, 'TIME OVER'), _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].CLEARED, 'CLEARED'), _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].ALLDEAD, 'ALL DEAD'), _STATUS);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(StatusBoard).apply(this, arguments));
-  }
+var StatusBoard = function StatusBoard() {
+  var _useSelector = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
+    return store.stats;
+  }),
+      minesLeft = _useSelector.minesLeft,
+      clearLeft = _useSelector.clearLeft,
+      status = _useSelector.status,
+      deaths = _useSelector.deaths,
+      timer = _useSelector.timer,
+      flagCount = _useSelector.flagCount;
 
-  _createClass(StatusBoard, [{
-    key: "render",
-    value: function render() {
-      var _this$props = this.props,
-          mineCount = _this$props.mineCount,
-          safeCount = _this$props.safeCount,
-          timer = _this$props.timer,
-          deaths = _this$props.deaths,
-          status = _this$props.status,
-          flags = _this$props.flags;
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "status-board"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "mines"
-      }, "Mines: ", mineCount), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "safes"
-      }, "Safes: ", safeCount), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "status"
-      }, status), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "deaths"
-      }, "Deaths: ", deaths), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "flags"
-      }, "Flags: ", flags), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "timer"
-      }, timer < 0 ? 'Next Game: ' : 'Time Left: ', timer));
-    }
-  }]);
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "status-board"
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "mines"
+  }, "Mines: ".concat(minesLeft)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "safes"
+  }, "Safes: ".concat(clearLeft)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "status"
+  }, STATUS[status]), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "deaths"
+  }, "Deaths: ".concat(deaths)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "flags"
+  }, "Flags: ".concat(flagCount)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "timer"
+  }, "".concat(timer < 0 ? 'Next Game: ' : 'Time Left: ', " ").concat(timer)));
+};
 
-  return StatusBoard;
-}(react__WEBPACK_IMPORTED_MODULE_0__["PureComponent"]);
-
-
+/* harmony default export */ __webpack_exports__["default"] = (StatusBoard);
 
 /***/ }),
 
@@ -783,17 +759,24 @@ react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render(react__WEBPACK_IMPORTED_
 /*!*************************************!*\
   !*** ./client/src/redux/actions.js ***!
   \*************************************/
-/*! exports provided: ACTION, setBoard, setStats, setPlayer, setPlayerList, createWebSocket */
+/*! exports provided: ACTION, setBoard, updateBoard, setStats, updateStats, setPlayer, setPlayerList, createWebSocket, setSessionAttempted, setSession, setLoggedInStatus, setLoginMessage, setGameJoined */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ACTION", function() { return ACTION; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setBoard", function() { return setBoard; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateBoard", function() { return updateBoard; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setStats", function() { return setStats; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateStats", function() { return updateStats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setPlayer", function() { return setPlayer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setPlayerList", function() { return setPlayerList; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createWebSocket", function() { return createWebSocket; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setSessionAttempted", function() { return setSessionAttempted; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setSession", function() { return setSession; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLoggedInStatus", function() { return setLoggedInStatus; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setLoginMessage", function() { return setLoginMessage; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setGameJoined", function() { return setGameJoined; });
 var ACTION = {
   SET_BOARD: 'SET_BOARD',
   UPDATE_BOARD: 'UPDATE_BOARD',
@@ -801,7 +784,12 @@ var ACTION = {
   UPDATE_STATS: 'UPDATE_STATS',
   SET_PLAYER: 'SET_PLAYER',
   SET_PLAYER_LIST: 'SET_PLAYER_LIST',
-  CREATE_WEBSOCKET: 'CREATE_WEBSOCKET'
+  CREATE_WEBSOCKET: 'CREATE_WEBSOCKET',
+  SET_SESSION_ATTEMPT: 'SET_SESSION_ATTEMPT',
+  SET_LOGGED_IN: 'SET_LOGGED_IN',
+  SET_SESSION: 'SET_SESSION',
+  SET_LOGIN_MESSAGE: 'SET_LOGIN_MESSAGE',
+  SET_GAME_JOINED: 'SET_GAME_JOINED'
 };
 var setBoard = function setBoard(board) {
   return {
@@ -809,9 +797,21 @@ var setBoard = function setBoard(board) {
     board: board
   };
 };
+var updateBoard = function updateBoard(spaces) {
+  return {
+    type: ACTION.UPDATE_BOARD,
+    spaces: spaces
+  };
+};
 var setStats = function setStats(stats) {
   return {
     type: ACTION.SET_STATS,
+    stats: stats
+  };
+};
+var updateStats = function updateStats(stats) {
+  return {
+    type: ACTION.UPDATE_STATS,
     stats: stats
   };
 };
@@ -833,6 +833,35 @@ var createWebSocket = function createWebSocket(webSocket) {
     webSocket: webSocket
   };
 };
+var setSessionAttempted = function setSessionAttempted() {
+  return {
+    type: ACTION.SET_SESSION_ATTEMPT
+  };
+};
+var setSession = function setSession(uuid) {
+  return {
+    type: ACTION.SET_SESSION,
+    uuid: uuid
+  };
+};
+var setLoggedInStatus = function setLoggedInStatus(status) {
+  return {
+    type: ACTION.SET_LOGGED_IN,
+    status: status
+  };
+};
+var setLoginMessage = function setLoginMessage(message) {
+  return {
+    type: ACTION.SET_LOGIN_MESSAGE,
+    message: message
+  };
+};
+var setGameJoined = function setGameJoined(status) {
+  return {
+    type: ACTION.SET_GAME_JOINED,
+    status: status
+  };
+};
 
 /***/ }),
 
@@ -846,7 +875,38 @@ var createWebSocket = function createWebSocket(webSocket) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions */ "./client/src/redux/actions.js");
+/* eslint-disable no-restricted-syntax */
 
+
+var updateArray = function updateArray(array, updates) {
+  var newArray = array.slice();
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = updates[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var update = _step.value;
+      console.log('coord:', update.y, update.x, 'set to:', update.space);
+      newArray[update.y][update.x] = update.space;
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+        _iterator["return"]();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return newArray;
+};
 
 var board = function board() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [[]];
@@ -857,31 +917,7 @@ var board = function board() {
       return action.board;
 
     case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].UPDATE_BOARD:
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = action.data.spaces[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var change = _step.value;
-          state[change.y][change.x] = change.space;
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      return state;
+      return updateArray(state, action.spaces);
 
     default:
       return state;
@@ -889,6 +925,71 @@ var board = function board() {
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (board);
+
+/***/ }),
+
+/***/ "./client/src/redux/reducers/login.js":
+/*!********************************************!*\
+  !*** ./client/src/redux/reducers/login.js ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions */ "./client/src/redux/actions.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+var login = function login() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+    mounted: false,
+    session: window.localStorage.getItem('session'),
+    sessionAttempted: false,
+    loggedIn: false,
+    logginMessage: '',
+    gameJoined: false
+  };
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  switch (action.type) {
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].SET_SESSION_ATTEMPT:
+      return _objectSpread({}, state, {
+        sessionAttempted: true
+      });
+
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].SET_SESSION:
+      window.localStorage.setItem('session', action.uuid);
+      return _objectSpread({}, state, {
+        session: action.uuid
+      });
+
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].SET_LOGGED_IN:
+      return _objectSpread({}, state, {
+        loggedIn: action.status
+      });
+
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].SET_LOGIN_MESSAGE:
+      return _objectSpread({}, state, {
+        logginMessage: action.message
+      });
+
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].SET_GAME_JOINED:
+      return _objectSpread({}, state, {
+        gameJoined: action.status
+      });
+
+    default:
+      return state;
+  }
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (login);
 
 /***/ }),
 
@@ -980,6 +1081,36 @@ var gameState = function gameState() {
 
 /***/ }),
 
+/***/ "./client/src/redux/reducers/webSocket.js":
+/*!************************************************!*\
+  !*** ./client/src/redux/reducers/webSocket.js ***!
+  \************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions */ "./client/src/redux/actions.js");
+
+
+var webSocket = function webSocket() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+
+  switch (action.type) {
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].CREATE_WEBSOCKET:
+      console.log(action.webSocket);
+      return action.webSocket;
+
+    default:
+      return state;
+  }
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (webSocket);
+
+/***/ }),
+
 /***/ "./client/src/redux/store.js":
 /*!***********************************!*\
   !*** ./client/src/redux/store.js ***!
@@ -993,6 +1124,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _reducers_board__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./reducers/board */ "./client/src/redux/reducers/board.js");
 /* harmony import */ var _reducers_stats__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./reducers/stats */ "./client/src/redux/reducers/stats.js");
 /* harmony import */ var _reducers_players__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./reducers/players */ "./client/src/redux/reducers/players.js");
+/* harmony import */ var _reducers_login__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./reducers/login */ "./client/src/redux/reducers/login.js");
+/* harmony import */ var _reducers_webSocket__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./reducers/webSocket */ "./client/src/redux/reducers/webSocket.js");
+/* eslint-disable no-underscore-dangle */
+
+
 
 
 
@@ -1001,8 +1137,45 @@ __webpack_require__.r(__webpack_exports__);
   board: _reducers_board__WEBPACK_IMPORTED_MODULE_1__["default"],
   stats: _reducers_stats__WEBPACK_IMPORTED_MODULE_2__["default"],
   player: _reducers_players__WEBPACK_IMPORTED_MODULE_3__["player"],
-  playerList: _reducers_players__WEBPACK_IMPORTED_MODULE_3__["playerList"]
-})));
+  playerList: _reducers_players__WEBPACK_IMPORTED_MODULE_3__["playerList"],
+  login: _reducers_login__WEBPACK_IMPORTED_MODULE_4__["default"],
+  webSocket: _reducers_webSocket__WEBPACK_IMPORTED_MODULE_5__["default"]
+}), window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()));
+
+/***/ }),
+
+/***/ "./client/src/utils.jsx":
+/*!******************************!*\
+  !*** ./client/src/utils.jsx ***!
+  \******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  getSession: function getSession() {
+    return window.localStorage.getItem('session');
+  },
+  setSession: function setSession(uuid) {
+    return window.localStorage.setItem('session', uuid);
+  },
+  spaceClickInvalid: function spaceClickInvalid(e) {
+    return !e || !e.target || e.target.disabled || !e.target.dataset || !e.target.dataset.coord;
+  },
+  getCoordinates: function getCoordinates(e) {
+    return e.target.dataset.coord.split('_').map(function (num) {
+      return Number(num);
+    });
+  },
+  getLoginFields: function getLoginFields(e) {
+    return e ? {
+      name: e.target.parentNode.childNodes[1].value,
+      password: e.target.parentNode.childNodes[2].value,
+      password2: e.target.parentNode.childNodes[3].value
+    } : {};
+  }
+});
 
 /***/ }),
 
