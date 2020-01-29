@@ -181,6 +181,18 @@ SweeperGame.neighbors = [
   [0, -1], [0, 1],
   [1, -1], [1, 0], [1, 1],
 ];
+SweeperGame.Create = (mode) => {
+  switch (mode) {
+    case 'easy':
+      return new SweeperGame(35, 10, 900);
+    case 'medium':
+      return new SweeperGame(35, 20, 900);
+    case 'hard':
+      return new SweeperGame(35, 30, 900);
+    default:
+      return new SweeperGame(35, 10, 900);
+  }
+};
 
 module.exports = SweeperGame;
 module.exports.FLAGS = {

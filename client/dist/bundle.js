@@ -120,6 +120,8 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+/* eslint-disable no-nested-ternary */
+
 /* eslint-disable no-bitwise */
 
 
@@ -253,8 +255,8 @@ var App = function App() {
     console.log(newWebSocket);
     dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["createWebSocket"])(newWebSocket));
   });
-  var joinGame = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(function () {
-    createSocket("".concat(_env__WEBPACK_IMPORTED_MODULE_6__["server"].env.SOCKET, "/game"));
+  var joinGame = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(function (event) {
+    createSocket("".concat(_env__WEBPACK_IMPORTED_MODULE_6__["server"].env.SOCKET, "/game/").concat(event.target.dataset.mode));
   });
   Object(react__WEBPACK_IMPORTED_MODULE_0__["useEffect"])(function () {
     setMounted(true);
@@ -274,10 +276,7 @@ var App = function App() {
   }, [mounted]);
   return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "app"
-  }, player.name === undefined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Login__WEBPACK_IMPORTED_MODULE_5__["default"], null) : gameJoined ? '' : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-    type: "button",
-    onClick: joinGame
-  }, "Join Game"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+  }, player.name === undefined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Login__WEBPACK_IMPORTED_MODULE_5__["default"], null) : gameJoined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "game-holder"
   }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_StatusBoard__WEBPACK_IMPORTED_MODULE_8__["default"], {
     mineCount: minesLeft,
@@ -292,7 +291,19 @@ var App = function App() {
     onSpaceFlag: flagSpace
   })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_PlayerList__WEBPACK_IMPORTED_MODULE_7__["default"], {
     playerList: playerList
-  }));
+  })) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h2", null, "Join Game"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+    type: "button",
+    onClick: joinGame,
+    "data-mode": "easy"
+  }, "Easy"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+    type: "button",
+    onClick: joinGame,
+    "data-mode": "medium"
+  }, "Medium"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+    type: "button",
+    onClick: joinGame,
+    "data-mode": "hard"
+  }, "Hard")));
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (App);
@@ -63216,6 +63227,23 @@ function () {
 }();
 
 SweeperGame.neighbors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+
+SweeperGame.Create = function (mode) {
+  switch (mode) {
+    case 'easy':
+      return new SweeperGame(35, 10, 900);
+
+    case 'medium':
+      return new SweeperGame(35, 20, 900);
+
+    case 'hard':
+      return new SweeperGame(35, 30, 900);
+
+    default:
+      return new SweeperGame(35, 10, 900);
+  }
+};
+
 module.exports = SweeperGame;
 module.exports.FLAGS = {
   NONE: 0,

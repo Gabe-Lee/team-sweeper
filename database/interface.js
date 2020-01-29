@@ -48,7 +48,7 @@ module.exports = {
       .then(() => client.db('TeamSweeper'))
       .then((db) => db.collection('Sessions'))
       .then((sessions) => sessions.findOne({ uuid }))
-      .then((session) => (session.expires > Date.now() && session.loggedIn && session.owner ? session.owner : undefined))
+      .then((session) => (session.expires > Date.now() && session.loggedIn && session.owner ? session : undefined))
       .catch(() => undefined);
   },
 };

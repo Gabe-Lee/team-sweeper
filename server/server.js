@@ -1,47 +1,78 @@
+/* eslint-disable arrow-parens */
 /* eslint-disable no-underscore-dangle */
 const express = require('express');
 const expressWs = require('express-ws');
 const cors = require('cors')();
 const uuidv4 = require('uuid/v4');
-// const cookieParser = require('cookie-parser')();
 const crypt = require('./crypt');
 const db = require('../database/interface.js');
 const SweeperGame = require('./game.js');
 const { URL } = require('../env').database;
 const WS = require('./actions');
+const { TIME: T, assert, sessionIsValid, userIsValid, resultIsTrue } = require('./utils');
 
 const json = express.json();
 const serveClient = express.static('client/dist');
 const server = express();
 const serverWs = expressWs(server);
 
+const activeSessions = {};
 
-let game = new SweeperGame(35, 15, 900);
+const games = {
+  easy: SweeperGame.Create('easy'),
+  medium: SweeperGame.Create('medium'),
+  hard: SweeperGame.Create('hard'),
+};
 server.tickTime = () => {
-  game.timer -= 1;
-  if (game.timer < -60) {
-    game = new SweeperGame(30, 25, 900);
-    serverWs.getWss('/game').clients.forEach((client) => {
-      client.send(JSON.stringify({
-        type: WS.SEND_CURRENT_GAME,
-        data: {
-          board: game.board,
-          stats: {
-            minesLeft: game.mineCount,
-            clearLeft: game.safeCount,
-            timer: game.timer,
-            status: game.status,
-            deaths: `${game.deaths}/${game.maxDeaths}`,
-            flagCount: game.flagCount,
+  const keys = Object.keys(games);
+  for (let i = 0; i < keys.length; i += 1) {
+    const gameMode = keys[i];
+    let game = games[gameMode];
+    game.timer -= 1;
+    console.log('mode:', gameMode);
+    if (game.timer < -60) {
+      games[gameMode] = SweeperGame.Create(gameMode);
+      game = games[gameMode];
+      serverWs.getWss().clients.forEach((client) => {
+        console.log('client', i);
+        client.send(JSON.stringify({
+          type: WS.SEND_CURRENT_GAME,
+          data: {
+            board: game.board,
+            stats: {
+              minesLeft: game.mineCount,
+              clearLeft: game.safeCount,
+              timer: game.timer,
+              status: game.status,
+              deaths: game.deaths,
+              flagCount: game.flagCount,
+            },
           },
-        },
-      }));
-    });
+        }));
+      });
+    } else {
+      serverWs.getWss().clients.forEach((client) => {
+        if (client.gameMode === gameMode) {
+          console.log('client', i);
+          client.send(JSON.stringify({
+            type: WS.SEND_GAME_STATS,
+            data: {
+              stats: {
+                minesLeft: game.mineCount,
+                clearLeft: game.safeCount,
+                timer: game.timer < 0 ? 59 + game.timer : game.timer,
+                status: game.status,
+                deaths: game.deaths,
+                flagCount: game.flagCount,
+              },
+            },
+          }));
+        }
+      });
+    }
   }
-  serverWs.getWss('/game').clients.forEach((client) => {
-    client.send(JSON.stringify({ type: 'TICK_TIME', data: { timer: game.timer < 0 ? 59 + game.timer : game.timer, status: game.status, playerList: game.players } }));
-  });
-  setTimeout(server.tickTime, 1000);
+
+  setTimeout(server.tickTime, T.SECOND);
 };
 server.tickTime();
 
@@ -56,69 +87,66 @@ server.post('/session', (req, res) => {
   console.log('session login:', session);
   let sessionOwner = null;
   db.checkSession(session)
-    .then((owner) => {
-      sessionOwner = owner;
-      if (sessionOwner === undefined) {
-        res.status(200).send(JSON.stringify(false));
-      } else {
-        console.log(sessionOwner);
-        db.getUserById(sessionOwner)
-          .then((user) => {
-            if (user === undefined) {
-              console.log('not found');
-              res.status(200).end();
-            } else {
-              delete user.hash;
-              delete user._id;
-              res.status(200).send(JSON.stringify(user));
-            }
-          })
-          .catch((err) => {
-            res.status(500).send(JSON.stringify(null));
-          });
-      }
+    .then(assert(sessionIsValid))
+    .then((validSession) => {
+      sessionOwner = validSession.owner;
+      return db.getUserById(sessionOwner);
+    })
+    .then(assert(userIsValid))
+    .then((validUser) => {
+      const clientUser = { ...validUser, hash: undefined, _id: undefined };
+      activeSessions[sessionOwner] = Date.now() + T.HOUR;
+      res.status(200).send(JSON.stringify(clientUser));
+    })
+    .catch(() => {
+      res.status(200).send(JSON.stringify(false));
     });
 });
 
 server.post('/login', (req, res) => {
   const { name, password } = req.body;
   console.log('login:', name, password)
-  let foundUser = null;
+  let validUser = null;
   db.getUser(name)
+    .then(assert(userIsValid))
     .then((user) => {
-      foundUser = user;
-      return crypt.compareHash(password, user.hash);
+      validUser = user;
+      return crypt.compareHash(password, validUser.hash);
     })
-    .then((matches) => {
-      if (!matches) {
-        res.status(200).send(null);
-      } else {
-        const newUuid = uuidv4();
-        const newExpires = Date.now() + 604800000;
-        db.newSession({
-          uuid: newUuid,
-          owner: foundUser._id,
-          loggedIn: true,
-          expires: newExpires,
-        });
-        delete foundUser.hash;
-        delete foundUser._id;
-        res.status(200).send(JSON.stringify({ user: foundUser, session: newUuid }))
-      }
+    .then(assert(resultIsTrue))
+    .then(() => {
+      const newUuid = uuidv4();
+      const newExpires = Date.now() + 604800000;
+      const sessionOwner = validUser._id;
+      db.newSession({
+        uuid: newUuid,
+        owner: sessionOwner,
+        loggedIn: true,
+        expires: newExpires,
+      });
+      const clientUser = { ...validUser, hash: undefined, _id: undefined };
+      activeSessions[sessionOwner] = Date.now() + T.HOUR;
+      res.status(200).send(JSON.stringify({ user: clientUser, session: newUuid }));
     })
     .catch(() => {
-      res.status(404).send(null);
+      res.status(200).send(null);
     });
 });
 
-server.ws('/game', (ws, req) => {
+server.ws('/game/:mode', (ws, req) => {
+  const gameMode = req.params.mode;
+  ws.gameMode = gameMode;
   ws.on('message', (msgStr) => {
     console.log('msgStr:', msgStr);
     console.log('string msgStr:', JSON.stringify(msgStr));
     const { type, data, session } = JSON.parse(msgStr);
-    if (db.checkSession(session) === undefined) {
-      ws.close();
-      return;
+    if (activeSessions[session] < Date.now()) {
+      if (db.checkSession(session) === undefined) {
+        ws.close();
+        delete activeSessions[session];
+        return;
+      }
+      activeSessions[session] = Date.now() + T.HOUR;
     }
     switch (type) {
       // WebSocket Message Types
@@ -131,14 +159,14 @@ server.ws('/game', (ws, req) => {
         ws.send(JSON.stringify({
           type: WS.SEND_CURRENT_GAME,
           data: {
-            board: game.getVisibleBoard(),
+            board: games[gameMode].getVisibleBoard(),
             stats: {
-              minesLeft: game.mineCount,
-              clearLeft: game.safeCount,
-              status: game.status,
-              timer: game.timer,
-              deaths: `${game.deaths}/${game.maxDeaths}`,
-              flagCount: game.flagCount,
+              minesLeft: games[gameMode].mineCount,
+              clearLeft: games[gameMode].safeCount,
+              status: games[gameMode].status,
+              timer: games[gameMode].timer,
+              deaths: games[gameMode].deaths,
+              flagCount: games[gameMode].flagCount,
             },
           },
         }));
@@ -146,46 +174,50 @@ server.ws('/game', (ws, req) => {
 
       case WS.REQ_SWEEP:
         // eslint-disable-next-line no-case-declarations
-        const { spaces } = game.sweepPosition(data.y, data.x, data.player);
+        const { spaces } = games[gameMode].sweepPosition(data.y, data.x, data.player);
         if (spaces.length > 0) {
-          serverWs.getWss('/game').clients.forEach((client) => {
-            client.send(JSON.stringify({
-              type: WS.SEND_SWEEP_RESULT,
-              data: {
-                spaces,
-                stats: {
-                  minesLeft: game.mineCount,
-                  clearLeft: game.safeCount,
-                  status: game.status,
-                  timer: game.timer,
-                  deaths: `${game.deaths}/${game.maxDeaths}`,
-                  flagCount: game.flagCount,
+          serverWs.getWss().clients.forEach((client) => {
+            if (client.gameMode === gameMode) {
+              client.send(JSON.stringify({
+                type: WS.SEND_SWEEP_RESULT,
+                data: {
+                  spaces,
+                  stats: {
+                    minesLeft: games[gameMode].mineCount,
+                    clearLeft: games[gameMode].safeCount,
+                    status: games[gameMode].status,
+                    timer: games[gameMode].timer,
+                    deaths: games[gameMode].deaths,
+                    flagCount: games[gameMode].flagCount,
+                  },
                 },
-              },
-            }));
+              }));
+            }
           });
         }
         break;
 
       case WS.REQ_FLAG:
         // eslint-disable-next-line no-case-declarations
-        const { newFlag, status } = game.flagPosition(data.y, data.x, data.player);
+        const { newFlag } = games[gameMode].flagPosition(data.y, data.x, data.player);
         if (newFlag) {
-          serverWs.getWss('/game').clients.forEach((client) => {
-            client.send(JSON.stringify({
-              type: WS.SEND_FLAG_RESULT,
-              data: {
-                spaces: [{ x: data.x, y: data.y, space: -2 }],
-                stats: {
-                  minesLeft: game.mineCount,
-                  clearLeft: game.safeCount,
-                  status: game.status,
-                  timer: game.timer,
-                  deaths: `${game.deaths}/${game.maxDeaths}`,
-                  flagCount: game.flagCount,
+          serverWs.getWss().clients.forEach((client) => {
+            if (client.gameMode === gameMode) {
+              client.send(JSON.stringify({
+                type: WS.SEND_FLAG_RESULT,
+                data: {
+                  spaces: [{ x: data.x, y: data.y, space: -2 }],
+                  stats: {
+                    minesLeft: games[gameMode].mineCount,
+                    clearLeft: games[gameMode].safeCount,
+                    status: games[gameMode].status,
+                    timer: games[gameMode].timer,
+                    deaths: games[gameMode].deaths,
+                    flagCount: games[gameMode].flagCount,
+                  },
                 },
-              },
-            }));
+              }));
+            }
           });
         }
         break;

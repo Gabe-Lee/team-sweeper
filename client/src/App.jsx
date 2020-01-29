@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-bitwise */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -85,8 +86,8 @@ const App = () => {
     dispatch(createWebSocket(newWebSocket));
   });
 
-  const joinGame = useCallback(() => {
-    createSocket(`${server.env.SOCKET}/game`);
+  const joinGame = useCallback((event) => {
+    createSocket(`${server.env.SOCKET}/game/${event.target.dataset.mode}`);
   });
 
   useEffect(() => {
@@ -103,19 +104,34 @@ const App = () => {
 
   return (
     <div className="app">
-      {player.name === undefined ? <Login /> : gameJoined ? '' : <button type="button" onClick={joinGame}>Join Game</button>}
-      <div className="game-holder">
-        <StatusBoard
-          mineCount={minesLeft}
-          safeCount={clearLeft}
-          timer={timer}
-          deaths={deaths}
-          status={status}
-          flags={flagCount}
-        />
-        <Board board={board} onSpaceClick={sweepSpace} onSpaceFlag={flagSpace} />
-      </div>
-      <PlayerList playerList={playerList} />
+      {
+        player.name === undefined ? <Login />
+          : gameJoined ? (
+            <>
+              <div className="game-holder">
+                <StatusBoard
+                  mineCount={minesLeft}
+                  safeCount={clearLeft}
+                  timer={timer}
+                  deaths={deaths}
+                  status={status}
+                  flags={flagCount}
+                />
+                <Board board={board} onSpaceClick={sweepSpace} onSpaceFlag={flagSpace} />
+              </div>
+              <PlayerList playerList={playerList} />
+            </>
+          )
+            : (
+              <>
+                <h2>Join Game</h2>
+                <button type="button" onClick={joinGame} data-mode="easy">Easy</button>
+                <button type="button" onClick={joinGame} data-mode="medium">Medium</button>
+                <button type="button" onClick={joinGame} data-mode="hard">Hard</button>
+              </>
+            )
+      }
+
     </div>
   );
 };
