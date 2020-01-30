@@ -1,13 +1,12 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { FLAGS } from '../../server/game';
+import { STATUS as S } from '../../server/game_logic/Game';
 
 const STATUS = {
-  [FLAGS.NONE]: 'NO GAME',
-  [FLAGS.DEAD]: 'DEAD',
-  [FLAGS.TIMEOUT]: 'TIME OVER',
-  [FLAGS.CLEARED]: 'CLEARED',
-  [FLAGS.ALLDEAD]: 'ALL DEAD',
+  [S.NO_GAME]: 'NO GAME',
+  [S.TIMEOUT]: 'TIME OVER',
+  [S.CLEARED]: 'CLEARED',
+  [S.IN_PROGRESS]: 'IN PROGRESS',
 };
 
 const StatusBoard = () => {

@@ -1,11 +1,11 @@
-import { FLAGS } from '../../../../server/game';
+import { STATUS } from '../../../../server/game_logic/Game';
 import { ACTION } from '../actions';
 
 const gameState = (state = {
   minesLeft: 0,
   clearLeft: 0,
   timer: 0,
-  status: FLAGS.NONE,
+  status: STATUS.NO_GAME,
   deaths: 0,
   flagCount: 0,
 }, action) => {

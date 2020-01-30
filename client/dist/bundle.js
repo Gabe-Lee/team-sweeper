@@ -110,8 +110,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _server_actions__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../server/actions */ "./server/actions.js");
 /* harmony import */ var _server_actions__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_server_actions__WEBPACK_IMPORTED_MODULE_9__);
 /* harmony import */ var _redux_actions__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./redux/actions */ "./client/src/redux/actions.js");
-/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../server/game */ "./server/game.js");
-/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_server_game__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../server/game_logic/Game */ "./server/game_logic/Game.js");
+/* harmony import */ var _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_server_game_logic_Game__WEBPACK_IMPORTED_MODULE_11__);
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -169,7 +169,8 @@ var App = function App() {
   var _useSelector2 = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
     return store.login;
   }),
-      gameJoined = _useSelector2.gameJoined;
+      gameJoined = _useSelector2.gameJoined,
+      session = _useSelector2.session;
 
   var dispatch = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useDispatch"])();
   var sweepSpace = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(function (event) {
@@ -182,10 +183,10 @@ var App = function App() {
 
     webSocket.send(JSON.stringify({
       type: _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.REQ_SWEEP,
+      session: session,
       data: {
         y: y,
-        x: x,
-        player: player.name
+        x: x
       }
     }));
   });
@@ -199,10 +200,10 @@ var App = function App() {
 
     webSocket.send(JSON.stringify({
       type: _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.REQ_FLAG,
+      session: session,
       data: {
         y: y,
-        x: x,
-        player: player.name
+        x: x
       }
     }));
   });
@@ -214,6 +215,8 @@ var App = function App() {
           type = _JSON$parse.type,
           data = _JSON$parse.data;
 
+      console.log(type, data);
+
       switch (type) {
         case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_CURRENT_GAME:
           dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["setBoard"])(data.board));
@@ -221,7 +224,6 @@ var App = function App() {
           break;
 
         case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_SWEEP_RESULT:
-          if (data.died === player.name) data.stats.status |= _server_game__WEBPACK_IMPORTED_MODULE_11__["FLAGS"].DEAD;
           dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateBoard"])(data.spaces));
           dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateStats"])(data.stats));
           break;
@@ -246,7 +248,8 @@ var App = function App() {
 
     newWebSocket.onopen = function () {
       newWebSocket.send(JSON.stringify({
-        type: _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.REQ_CURRENT_GAME
+        type: _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.REQ_CURRENT_GAME,
+        session: session
       }));
       console.log('sending message to: ', "".concat(_env__WEBPACK_IMPORTED_MODULE_6__["server"].env.SOCKET, "/game"), 'with message: ', _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.REQ_CURRENT_GAME);
       dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["setGameJoined"])(true));
@@ -278,15 +281,7 @@ var App = function App() {
     className: "app"
   }, player.name === undefined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Login__WEBPACK_IMPORTED_MODULE_5__["default"], null) : gameJoined ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: "game-holder"
-  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_StatusBoard__WEBPACK_IMPORTED_MODULE_8__["default"], {
-    mineCount: minesLeft,
-    safeCount: clearLeft,
-    timer: timer,
-    deaths: deaths,
-    status: status,
-    flags: flagCount
-  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Board__WEBPACK_IMPORTED_MODULE_4__["default"], {
-    board: board,
+  }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_StatusBoard__WEBPACK_IMPORTED_MODULE_8__["default"], null), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Board__WEBPACK_IMPORTED_MODULE_4__["default"], {
     onSpaceClick: sweepSpace,
     onSpaceFlag: flagSpace
   })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_PlayerList__WEBPACK_IMPORTED_MODULE_7__["default"], {
@@ -319,30 +314,12 @@ var App = function App() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Board; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/.pnpm/registry.npmjs.org/react/16.12.0/node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! prop-types */ "./node_modules/.pnpm/registry.npmjs.org/prop-types/15.7.2/node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _Space__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Space */ "./client/src/Space.jsx");
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/.pnpm/registry.npmjs.org/react-redux/7.1.3_cbb074364ace735d13d38692c50e064b/node_modules/react-redux/es/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! prop-types */ "./node_modules/.pnpm/registry.npmjs.org/prop-types/15.7.2/node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _Space__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Space */ "./client/src/Space.jsx");
 /* eslint-disable jsx-a11y/interactive-supports-focus */
 
 /* eslint-disable jsx-a11y/click-events-have-key-events */
@@ -350,59 +327,43 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-var Board =
-/*#__PURE__*/
-function (_PureComponent) {
-  _inherits(Board, _PureComponent);
 
-  function Board() {
-    _classCallCheck(this, Board);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(Board).apply(this, arguments));
-  }
-
-  _createClass(Board, [{
-    key: "render",
-    value: function render() {
-      var _this$props = this.props,
-          board = _this$props.board,
-          onSpaceClick = _this$props.onSpaceClick,
-          onSpaceFlag = _this$props.onSpaceFlag;
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
-        className: "board",
-        onContextMenu: function onContextMenu(e) {
-          e.preventDefault();
-          onSpaceFlag(e);
-        },
-        onClick: onSpaceClick,
-        role: "button",
-        style: {
-          gridTemplateColumns: "repeat(".concat(board[0] ? board[0].length : 0, ", 1fr)"),
-          gridTemplateRows: "repeat(".concat(board.length, ", 1fr)"),
-          width: "".concat((board[0] ? board[0].length : 0) * 1.5, "rem"),
-          height: "".concat(board.length * 1.5, "rem")
-        }
-      }, board.map(function (row, y) {
-        return row.map(function (spaceMines, x) {
-          return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Space__WEBPACK_IMPORTED_MODULE_2__["default"], {
-            key: "".concat(y, "_").concat(x),
-            mines: spaceMines,
-            coord: "".concat(y, "_").concat(x)
-          });
-        });
-      }));
+var Board = function Board(_ref) {
+  var onSpaceClick = _ref.onSpaceClick,
+      onSpaceFlag = _ref.onSpaceFlag;
+  var board = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
+    return store.board;
+  });
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+    className: "board",
+    onContextMenu: function onContextMenu(e) {
+      e.preventDefault();
+      onSpaceFlag(e);
+    },
+    onClick: onSpaceClick,
+    role: "button",
+    style: {
+      gridTemplateColumns: "repeat(".concat(board[0] ? board[0].length : 0, ", 1fr)"),
+      gridTemplateRows: "repeat(".concat(board.length, ", 1fr)"),
+      width: "".concat((board[0] ? board[0].length : 0) * 1.5, "rem"),
+      height: "".concat(board.length * 1.5, "rem")
     }
-  }]);
-
-  return Board;
-}(react__WEBPACK_IMPORTED_MODULE_0__["PureComponent"]);
-
+  }, board.map(function (row, y) {
+    return row.map(function (spaceMines, x) {
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_Space__WEBPACK_IMPORTED_MODULE_3__["default"], {
+        key: "".concat(y, "_").concat(x),
+        mines: spaceMines,
+        coord: "".concat(y, "_").concat(x)
+      });
+    });
+  }));
+};
 
 Board.propTypes = {
-  board: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.arrayOf(prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.arrayOf(prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.number)).isRequired,
-  onSpaceClick: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func.isRequired,
-  onSpaceFlag: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func.isRequired
+  onSpaceClick: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.func.isRequired,
+  onSpaceFlag: prop_types__WEBPACK_IMPORTED_MODULE_2___default.a.func.isRequired
 };
+/* harmony default export */ __webpack_exports__["default"] = (Board);
 
 /***/ }),
 
@@ -696,8 +657,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/.pnpm/registry.npmjs.org/react/16.12.0/node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/.pnpm/registry.npmjs.org/react-redux/7.1.3_cbb074364ace735d13d38692c50e064b/node_modules/react-redux/es/index.js");
-/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../server/game */ "./server/game.js");
-/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_server_game__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../server/game_logic/Game */ "./server/game_logic/Game.js");
+/* harmony import */ var _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_server_game_logic_Game__WEBPACK_IMPORTED_MODULE_2__);
 var _STATUS;
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -705,7 +666,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
-var STATUS = (_STATUS = {}, _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].NONE, 'NO GAME'), _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].DEAD, 'DEAD'), _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].TIMEOUT, 'TIME OVER'), _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].CLEARED, 'CLEARED'), _defineProperty(_STATUS, _server_game__WEBPACK_IMPORTED_MODULE_2__["FLAGS"].ALLDEAD, 'ALL DEAD'), _STATUS);
+var STATUS = (_STATUS = {}, _defineProperty(_STATUS, _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_2__["STATUS"].NO_GAME, 'NO GAME'), _defineProperty(_STATUS, _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_2__["STATUS"].TIMEOUT, 'TIME OVER'), _defineProperty(_STATUS, _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_2__["STATUS"].CLEARED, 'CLEARED'), _defineProperty(_STATUS, _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_2__["STATUS"].IN_PROGRESS, 'IN PROGRESS'), _STATUS);
 
 var StatusBoard = function StatusBoard() {
   var _useSelector = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
@@ -898,8 +859,8 @@ var updateArray = function updateArray(array, updates) {
   try {
     for (var _iterator = updates[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var update = _step.value;
-      console.log('coord:', update.y, update.x, 'set to:', update.space);
-      newArray[update.y][update.x] = update.space;
+      console.log('coord:', update.y, update.x, 'set to:', update.value);
+      newArray[update.y][update.x] = update.value;
     }
   } catch (err) {
     _didIteratorError = true;
@@ -1053,8 +1014,8 @@ var playerList = function playerList() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../server/game */ "./server/game.js");
-/* harmony import */ var _server_game__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_server_game__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../server/game_logic/Game */ "./server/game_logic/Game.js");
+/* harmony import */ var _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_server_game_logic_Game__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../actions */ "./client/src/redux/actions.js");
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
@@ -1070,7 +1031,7 @@ var gameState = function gameState() {
     minesLeft: 0,
     clearLeft: 0,
     timer: 0,
-    status: _server_game__WEBPACK_IMPORTED_MODULE_0__["FLAGS"].NONE,
+    status: _server_game_logic_Game__WEBPACK_IMPORTED_MODULE_0__["STATUS"].NO_GAME,
     deaths: 0,
     flagCount: 0
   };
@@ -62949,12 +62910,114 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./server/game.js":
-/*!************************!*\
-  !*** ./server/game.js ***!
-  \************************/
+/***/ "./server/game_logic/ActivePlayer.js":
+/*!*******************************************!*\
+  !*** ./server/game_logic/ActivePlayer.js ***!
+  \*******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Player = __webpack_require__(/*! ./Player */ "./server/game_logic/Player.js");
+
+var Stats = __webpack_require__(/*! ./Stats */ "./server/game_logic/Stats.js");
+
+module.exports =
+/*#__PURE__*/
+function (_Player) {
+  _inherits(ActivePlayer, _Player);
+
+  function ActivePlayer(_ref) {
+    var _this;
+
+    var _ref$lives = _ref.lives,
+        lives = _ref$lives === void 0 ? 3 : _ref$lives,
+        _ref$sweeps = _ref.sweeps,
+        sweeps = _ref$sweeps === void 0 ? 0 : _ref$sweeps,
+        _ref$duration = _ref.duration,
+        duration = _ref$duration === void 0 ? 0 : _ref$duration,
+        playerArgs = _objectWithoutProperties(_ref, ["lives", "sweeps", "duration"]);
+
+    _classCallCheck(this, ActivePlayer);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(ActivePlayer).call(this, playerArgs));
+    _this.lives = lives;
+    _this.sweeps = sweeps;
+    _this.duration = duration;
+    return _this;
+  }
+
+  _createClass(ActivePlayer, [{
+    key: "addSweep",
+    value: function addSweep(mode) {
+      var amount = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+      this.sweeps += amount;
+      this.checkMode(mode);
+      this.modes[mode].sweeps += amount;
+    }
+  }, {
+    key: "loseLife",
+    value: function loseLife(mode) {
+      var amount = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+      this.lives -= amount;
+      this.checkMode(mode);
+      this.modes[mode].deaths += amount;
+    }
+  }, {
+    key: "countTime",
+    value: function countTime(mode) {
+      var amount = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1000;
+      this.duration += amount;
+      this.checkMode(mode);
+      this.modes[mode].duration += amount;
+    }
+  }, {
+    key: "checkMode",
+    value: function checkMode(mode) {
+      if (this.modes[mode] === undefined) {
+        this.modes[mode] = new Stats({
+          mode: mode
+        });
+      }
+    }
+  }]);
+
+  return ActivePlayer;
+}(Player);
+
+/***/ }),
+
+/***/ "./server/game_logic/Game.js":
+/*!***********************************!*\
+  !*** ./server/game_logic/Game.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -62964,128 +63027,149 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+/* eslint-disable no-nested-ternary */
+
+/* eslint-disable no-param-reassign */
+
+/* eslint-disable class-methods-use-this */
+
 /* eslint-disable no-bitwise */
 var _require = __webpack_require__(/*! random-js */ "./node_modules/.pnpm/registry.npmjs.org/random-js/2.1.0/node_modules/random-js/dist/random-js.esm.js"),
     MersenneTwister19937 = _require.MersenneTwister19937,
     bool = _require.bool;
 
+var _require2 = __webpack_require__(/*! ../utils */ "./server/utils.js"),
+    Matrix = _require2.Matrix;
+
+var ActivePlayer = __webpack_require__(/*! ./ActivePlayer */ "./server/game_logic/ActivePlayer.js");
+
 var randEngine = MersenneTwister19937.autoSeed();
+var STATUS = {
+  NO_GAME: 'NO_GAME',
+  TIMEOUT: 'TIMEOUT',
+  CLEARED: 'CLEARED',
+  IN_PROGRESS: 'IN_PROGRESS'
+};
+var SPACE = {
+  MINE: -3,
+  FLAG: -2,
+  UNKNOWN: -1
+};
 
 var SweeperGame =
 /*#__PURE__*/
 function () {
-  function SweeperGame() {
+  function SweeperGame(_ref) {
     var _this = this;
 
-    var size = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 30;
-    var density = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 20;
-    var timer = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 600;
+    var _ref$mode = _ref.mode,
+        mode = _ref$mode === void 0 ? 'medium' : _ref$mode,
+        _ref$size = _ref.size,
+        size = _ref$size === void 0 ? 30 : _ref$size,
+        _ref$density = _ref.density,
+        density = _ref$density === void 0 ? 20 : _ref$density,
+        _ref$timer = _ref.timer,
+        timer = _ref$timer === void 0 ? 900 : _ref$timer;
 
     _classCallCheck(this, SweeperGame);
 
-    this.timer = timer;
-    this.size = Math.max(size, 1);
-    this.density = Math.min(Math.max(density, 1), 99);
-    this.board = [];
-    this.visible = [];
-    this.flags = [];
+    switch (mode) {
+      case 'easy':
+        this.mode = 'easy';
+        this.density = 10;
+        break;
+
+      case 'medium':
+        this.mode = 'medium';
+        this.density = 20;
+        break;
+
+      case 'hard':
+        this.mode = 'hard';
+        this.density = 30;
+        break;
+
+      case 'extreme':
+        this.mode = 'extreme';
+        this.density = 40;
+        break;
+
+      default:
+        this.mode = mode;
+        this.density = Math.max(1, Math.min(99, density));
+        break;
+    }
+
+    this.stats = {
+      timer: timer,
+      deaths: 0,
+      minesLeft: 0,
+      clearLeft: 0,
+      flagCount: 0,
+      status: STATUS.IN_PROGRESS
+    };
+    this.size = Math.max(1, Math.min(50, size));
+    this.board = Matrix(this.size, 0);
+    this.visibleBoard = Matrix(this.size, -1);
+    this.flags = Matrix(this.size, {
+      owners: {},
+      total: 0
+    });
     this.uniqueFlags = 0;
-    this.deaths = 0;
-    this.maxDeaths = 0;
-    this.players = {};
-    this.mineCount = 0;
-    this.status = 'IN PROGRESS';
-    this.safeCount = size * size;
+    this.activePlayers = {};
     this.randDist = bool(density, 100);
 
     this.randBool = function () {
       return _this.randDist(randEngine);
-    };
+    }; // Fill board with mines and calculate surrounding mine counts
 
-    for (var y = 0; y < this.size; y += 1) {
-      this.board.push([]);
-      this.visible.push([]);
-      this.flags.push([]);
 
-      for (var x = 0; x < this.size; x += 1) {
-        var hasMine = this.randBool();
-        this.mineCount += hasMine ? 1 : 0;
-        this.safeCount -= hasMine ? 1 : 0;
-        this.board[y].push(hasMine ? -3 : 0);
-        this.visible[y].push(false);
-        this.flags[y].push({
-          players: [],
-          total: 0
+    this.forEachSpace(function (y, x) {
+      var hasMine = _this.randBool();
+
+      if (hasMine) {
+        _this.stats.minesLeft += 1;
+        _this.board[y][x] = SPACE.MINE;
+
+        _this.forEachNeighbor(y, x, function (yy, xx) {
+          if (_this.board[yy][xx] !== SPACE.MINE) {
+            _this.board[yy][xx] += 1;
+          }
         });
+      } else {
+        _this.stats.clearLeft += 1;
       }
-    }
+    }); // Choose a random starting clear space,
+    // prefering spaces with the lowest surrounding mines
 
-    this.maxDeaths = Math.floor(this.mineCount * (this.density / 20) / 10);
-    var edgeStarts = [];
-    var centerStarts = [];
-    var singleStarts = [];
-
-    for (var _y = 0; _y < this.size; _y += 1) {
-      for (var _x = 0; _x < this.size; _x += 1) {
-        if (this.board[_y][_x] !== -3) {
-          for (var n = 0; n < SweeperGame.neighbors.length; n += 1) {
-            var yy = _y + SweeperGame.neighbors[n][0];
-            var xx = _x + SweeperGame.neighbors[n][1];
-
-            if (xx >= 0 && xx < this.size && yy >= 0 && yy < this.size && this.board[yy][xx] === -3) {
-              this.board[_y][_x] += 1;
-            }
-          }
-
-          if (this.board[_y][_x] >= 0) {
-            if (this.board[_y][_x] === 0 && (_y === 0 || _x === 0 || _y === this.size - 1 || _x === this.size - 1)) {
-              edgeStarts.push([_y, _x]);
-            } else if (this.board[_y][_x] === 0) {
-              centerStarts.push([_y, _x]);
-            } else {
-              singleStarts.push([_y, _x]);
-            }
-          }
-        }
+    var preferedStarts = Array(9).fill([]);
+    this.forEachSpace(function (y, x) {
+      if (_this.board[y][x] >= 0) {
+        preferedStarts[_this.board[y][x]].push([y, x]);
       }
-    }
-
+    });
     var start = [0, 0];
+    var startChosen = false;
 
-    if (edgeStarts.length > 0) {
-      start = edgeStarts[Math.floor(Math.random() * edgeStarts.length)];
-    } else if (centerStarts > 0) {
-      start = centerStarts[Math.floor(Math.random() * centerStarts.length)];
-    } else if (singleStarts > 0) {
-      start = singleStarts[Math.floor(Math.random() * singleStarts.length)];
-    }
+    for (var count = 0; !startChosen && count < 9; count += 1) {
+      var startSet = preferedStarts[count];
 
-    var spaces = [{
-      y: start[0],
-      x: start[1]
-    }];
-    spaces = spaces.concat(this.recursiveSweep(spaces, _defineProperty({}, "".concat(start[0], "_").concat(start[1]), true)));
+      if (startSet.length > 0) {
+        var index = Math.floor(Math.random() * startSet.length);
+        start = startSet[index];
+        startChosen = true;
+      }
+    } // Recursively sweep chosen start space and any connected zero-mine spaces
 
-    for (var i = 0; i < spaces.length; i += 1) {
-      this.visible[spaces[i].y][spaces[i].x] = true;
-      this.safeCount -= 1;
-    }
+
+    this.sweepPosition(start[0], start[1], '', true);
   }
 
   _createClass(SweeperGame, [{
-    key: "playerIsAlive",
-    value: function playerIsAlive(player) {
-      if (this.players[player] === undefined) {
-        this.players[player] = {};
-        this.players[player].alive = true;
-        this.players[player].score = 0;
-      }
-
-      return this.players[player].alive;
-    }
-  }, {
     key: "recursiveSweep",
     value: function recursiveSweep() {
+      var _this2 = this;
+
       var children = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
       var swept = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
       if (children.length === 0) return [];
@@ -63096,163 +63180,322 @@ function () {
         var _children$i = children[i],
             y = _children$i.y,
             x = _children$i.x;
-
-        for (var n = 0; n < SweeperGame.neighbors.length; n += 1) {
-          var yy = y + SweeperGame.neighbors[n][0];
-          var xx = x + SweeperGame.neighbors[n][1];
-
-          if (yy >= 0 && yy < this.size && xx >= 0 && xx < this.size && this.board[yy][xx] !== -3 && swept["".concat(yy, "_").concat(xx)] === undefined) {
+        this.forEachNeighbor(y, x, function (yy, xx) {
+          if (!_this2.spaceIsMine(yy, xx) && !_this2.spaceHasBeenSwept(yy, xx, swept)) {
             sweepChildren.push({
               y: yy,
               x: xx,
-              space: this.board[yy][xx]
+              value: _this2.board[yy][xx]
             });
             swept["".concat(yy, "_").concat(xx)] = true;
 
-            if (this.board[yy][xx] === 0) {
+            if (_this2.spaceHasNoNearbyMines(yy, xx)) {
               recurseChildren.push({
                 y: yy,
                 x: xx,
-                space: this.board[yy][xx]
+                value: _this2.board[yy][xx]
               });
             }
           }
-        }
+        });
       }
 
-      sweepChildren = sweepChildren.concat(this.recursiveSweep(recurseChildren, swept));
-      return sweepChildren;
+      return sweepChildren.concat(this.recursiveSweep(recurseChildren, swept));
     }
   }, {
     key: "sweepPosition",
-    value: function sweepPosition(y, x) {
-      var player = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'anon';
-      if (this.status === 'GAME OVER' || this.status === 'GAME CLEAR' || this.status === 'TIME OUT' || !this.playerIsAlive(player)) return {
+    value: function sweepPosition(y, x, playerName) {
+      var master = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      console.log(playerName, this.activePlayers, this.activePlayers[playerName]);
+      if (!this.spacesCanBeModified(playerName, master)) return {
         spaces: []
       };
-      var wasMine = this.board[y][x] === -3;
-
-      if (wasMine) {
-        this.players[player].alive = false;
-        this.mineCount -= 1;
-        this.deaths += 1;
-
-        if (this.deaths >= 64) {
-          this.status = "GAME OVER";
-          this.timer = 0;
-        }
-      }
-
       var spaces = [{
         y: y,
         x: x,
-        space: this.board[y][x]
+        value: this.board[y][x]
       }];
+      var activePlayer = this.activePlayers[playerName];
 
-      if (!wasMine) {
-        this.players[player].score += 1;
+      if (this.spaceIsMine(y, x)) {
+        if (!master) {
+          activePlayer.loseLife(this.mode);
+          this.stats.deaths += 1;
+        }
+
+        this.stats.minesLeft -= 1;
+      } else {
+        if (!master) {
+          activePlayer.addSweep(this.mode);
+        }
+
+        if (this.spaceHasNoNearbyMines(y, x)) {
+          spaces = spaces.concat(this.recursiveSweep(spaces, _defineProperty({}, "".concat(y, "_").concat(x), true)));
+        }
       }
 
-      if (!wasMine && this.board[y][x] === 0) {
-        spaces = spaces.concat(this.recursiveSweep(spaces, _defineProperty({}, "".concat(y, "_").concat(x), true)));
-      }
+      for (var i = 0, len = spaces.length; i < len; i += 1) {
+        var sx = spaces[i].x;
+        var sy = spaces[i].y;
+        this.visibleBoard[sy][sx] = this.board[sy][sx];
+        this.stats.clearLeft -= 1;
 
-      for (var i = 0; i < spaces.length; i += 1) {
-        this.visible[spaces[i].y][spaces[i].x] = true;
-        this.safeCount -= 1;
-
-        if (this.safeCount <= 0) {
-          this.safeCount === 0;
-          this.status = 'GAME CLEAR';
-          this.timer = 0;
+        if (this.stats.clearLeft <= 0 || this.stats.minesLeft <= 0) {
+          this.stats.clearLeft = 0;
+          this.stats.minesLeft = 0;
+          this.stats.status = STATUS.CLEARED;
+          this.stats.timer = 0;
         }
       }
 
       return {
         spaces: spaces,
-        safeCount: this.safeCount,
-        mineCount: this.mineCount,
-        deaths: this.deaths,
-        died: this.players[player].alive ? '' : player
+        stats: this.stats,
+        died: activePlayer === undefined ? '' : activePlayer.lives <= 0 ? '' : playerName
       };
     }
   }, {
     key: "flagPosition",
-    value: function flagPosition(y, x) {
-      var player = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'anon';
-      if (!this.playerIsAlive(player)) return {};
-      var old = this.flags[y][x].total > 0;
-      this.flags[y][x].players[player] = this.flags[y][x].players[player] === undefined ? true : !this.flags[y][x].players[player];
-      this.flags[y][x].total += this.flags[y][x].players[player] ? 1 : -1;
-      var newFlag = this.flags[y][x].total > 0 !== old;
+    value: function flagPosition(y, x, playerName) {
+      var master = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      if (!this.spacesCanBeModified(playerName, master)) return {
+        spaces: []
+      };
+      var flagSpace = this.flags[y][x];
+      var oldStatus = flagSpace.total > 0;
+      this.setOrToggleFlag(flagSpace, playerName);
+      var newStatus = this.flags[y][x].total > 0 !== oldStatus;
 
-      if (newFlag) {
-        this.uniqueFlags += this.flags[y][x].total > 0 ? 1 : -1;
+      if (newStatus) {
+        this.uniqueFlags += flagSpace.total > 0 ? 1 : -1;
       }
 
       return {
-        newFlag: newFlag,
+        newStatus: newStatus,
         status: this.flags[y][x].total > 0
       };
     }
   }, {
-    key: "getVisibleBoard",
-    value: function getVisibleBoard() {
-      var visBoard = [];
+    key: "forEachNeighbor",
+    value: function forEachNeighbor(y, x) {
+      var operation = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {};
+      var map = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      var shifts = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+      var output = [];
 
-      for (var y = 0; y < this.size; y += 1) {
-        visBoard[y] = [];
+      for (var s = 0, len = shifts.length; s < len; s += 1) {
+        var yy = y + shifts[s][0];
+        var xx = x + shifts[s][1];
 
-        for (var x = 0; x < this.size; x += 1) {
-          if (this.visible[y][x]) {
-            visBoard[y][x] = this.board[y][x];
-          } else if (this.flags[y][x].total > 0) {
-            visBoard[y][x] = -2;
-          } else {
-            visBoard[y][x] = -1;
-          }
+        if (yy >= 0 && yy < this.size && xx >= 0 && xx < this.size) {
+          var result = operation(yy, xx);
+          if (map) output.push(result);
         }
       }
 
-      return visBoard;
+      return map ? output : undefined;
     }
   }, {
-    key: "getHiddenBoard",
-    value: function getHiddenBoard() {
-      return this.board;
+    key: "forEachSpace",
+    value: function forEachSpace() {
+      var operation = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {};
+      var map = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      var limit = this.size;
+      var output = [];
+
+      for (var y = 0; y < limit; y += 1) {
+        if (map) output.push([]);
+
+        for (var x = 0; x < limit; x += 1) {
+          var result = operation(y, x);
+          if (map) output[y].push(result);
+        }
+      }
+
+      return map ? output : undefined;
+    }
+  }, {
+    key: "gameInProgress",
+    value: function gameInProgress() {
+      return this.stats.status & STATUS.IN_PROGRESS;
+    }
+  }, {
+    key: "playerIsAlive",
+    value: function playerIsAlive(playerName) {
+      var player = this.activePlayers[playerName];
+      if (player === undefined) return false;
+      return player.lives > 0;
+    }
+  }, {
+    key: "spacesCanBeModified",
+    value: function spacesCanBeModified(playerName) {
+      var master = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      return master || this.gameInProgress() && this.playerIsAlive(playerName);
+    }
+  }, {
+    key: "spaceIsMine",
+    value: function spaceIsMine(y, x) {
+      return this.board[y][x] === SPACE.MINE;
+    }
+  }, {
+    key: "spaceHasNoNearbyMines",
+    value: function spaceHasNoNearbyMines(y, x) {
+      return this.board[y][x] === 0;
+    }
+  }, {
+    key: "spaceHasBeenSwept",
+    value: function spaceHasBeenSwept(y, x, sweptDict) {
+      return sweptDict["".concat(y, "_").concat(x)] !== undefined;
+    }
+  }, {
+    key: "setOrToggleFlag",
+    value: function setOrToggleFlag(flagSpace, playerName) {
+      if (flagSpace.owner[playerName] === undefined) {
+        flagSpace.owner[playerName] = true;
+        flagSpace.total += 1;
+      } else {
+        flagSpace.owner[playerName] = !flagSpace.owner[playerName];
+        flagSpace.total += flagSpace.owner[playerName] ? 1 : -1;
+      }
+    }
+  }, {
+    key: "addPlayer",
+    value: function addPlayer(player) {
+      if (this.activePlayers[player.name] === undefined) {
+        this.activePlayers[player.name] = new ActivePlayer(_objectSpread({
+          lives: 3,
+          sweeps: 0,
+          duration: 0
+        }, player));
+      }
+    }
+  }, {
+    key: "tickTime",
+    value: function tickTime() {
+      var duration = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+      var names = Object.keys(this.activePlayers);
+      this.stats.timer -= duration;
+
+      if (this.stats.timer <= 0) {
+        this.stats.status = STATUS.TIMEOUT;
+      }
+
+      for (var i = 0, len = names.length; i < len; i += 1) {
+        var player = this.activePlayers[names[i]];
+
+        if (player.lives > 0) {
+          player.countTime(this.mode, duration * 1000);
+        }
+      }
     }
   }]);
 
   return SweeperGame;
 }();
 
-SweeperGame.neighbors = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+module.exports = SweeperGame;
+module.exports.STATUS = STATUS;
+module.exports.SPACE = SPACE;
 
-SweeperGame.Create = function (mode) {
-  switch (mode) {
-    case 'easy':
-      return new SweeperGame(35, 10, 900);
+/***/ }),
 
-    case 'medium':
-      return new SweeperGame(35, 20, 900);
+/***/ "./server/game_logic/Player.js":
+/*!*************************************!*\
+  !*** ./server/game_logic/Player.js ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
 
-    case 'hard':
-      return new SweeperGame(35, 30, 900);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-    default:
-      return new SweeperGame(35, 10, 900);
-  }
+module.exports = function Player(name) {
+  var modes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  _classCallCheck(this, Player);
+
+  this.name = name;
+  this.modes = modes;
 };
 
-module.exports = SweeperGame;
-module.exports.FLAGS = {
-  NONE: 0,
-  ENDED: 1 << 0,
-  DEAD: 1 << 1,
-  TIMEOUT: 1 << 2,
-  CLEARED: 1 << 3,
-  ALLDEAD: 1 << 4,
-  WAITING: 1 << 5
+/***/ }),
+
+/***/ "./server/game_logic/Stats.js":
+/*!************************************!*\
+  !*** ./server/game_logic/Stats.js ***!
+  \************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+module.exports = function Stats(_ref) {
+  var _ref$mode = _ref.mode,
+      mode = _ref$mode === void 0 ? '' : _ref$mode,
+      _ref$sweeps = _ref.sweeps,
+      sweeps = _ref$sweeps === void 0 ? 0 : _ref$sweeps,
+      _ref$deaths = _ref.deaths,
+      deaths = _ref$deaths === void 0 ? 0 : _ref$deaths,
+      _ref$duration = _ref.duration,
+      duration = _ref$duration === void 0 ? 0 : _ref$duration;
+
+  _classCallCheck(this, Stats);
+
+  this.mode = mode;
+  this.sweeps = sweeps;
+  this.deaths = deaths;
+  this.duration = duration;
+};
+
+/***/ }),
+
+/***/ "./server/utils.js":
+/*!*************************!*\
+  !*** ./server/utils.js ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports.TIME = {
+  SECOND: 1000,
+  MINUTE: 60000,
+  HOUR: 3600000,
+  DAY: 86400000,
+  WEEK: 604800000,
+  MONTH: 2592000000,
+  YEAR: 31536000000
+};
+
+module.exports.Matrix = function (size) {
+  var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+  var output = [];
+
+  for (var y = 0; y < size; y += 1) {
+    output[y] = [];
+
+    for (var x = 0; x < size; x += 1) {
+      output[y].push(value);
+    }
+  }
+
+  return output;
+};
+
+module.exports.assert = function (assertion) {
+  return function (value) {
+    return assertion(value) ? Promise.resolve(value) : Promise.reject(value);
+  };
+};
+
+module.exports.sessionIsValid = function (session) {
+  return session !== undefined && session.uuid !== undefined && session.owner !== undefined && session.expires > Date.now() && session.loggedIn === true;
+};
+
+module.exports.userIsValid = function (user) {
+  return user !== undefined && user.name !== undefined && user.hash !== undefined;
+};
+
+module.exports.resultIsTrue = function (value) {
+  return value === true;
 };
 
 /***/ }),

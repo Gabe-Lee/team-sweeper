@@ -1,18 +1,12 @@
 const MongoDB = require('mongodb');
 const { database } = require('../env');
+const User = require('./User');
 
 const client = new MongoDB.MongoClient(database.URL, { useUnifiedTopology: true });
 
 module.exports = {
   addUser(name, hash) {
-    const newUser = {
-      name,
-      hash,
-      sweeps: 0,
-      score: 0,
-      deaths: 0,
-      time_alive: 0,
-    };
+    const newUser = new User({ name, hash });
     return client.connect()
       .then(() => client.db('TeamSweeper'))
       .then((db) => db.collection('Users'))

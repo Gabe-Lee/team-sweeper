@@ -6,7 +6,7 @@ const cors = require('cors')();
 const uuidv4 = require('uuid/v4');
 const crypt = require('./crypt');
 const db = require('../database/interface.js');
-const SweeperGame = require('./game.js');
+const SweeperGame = require('./game_logic/Game');
 const { URL } = require('../env').database;
 const WS = require('./actions');
 const { TIME: T, assert, sessionIsValid, userIsValid, resultIsTrue } = require('./utils');
@@ -19,59 +19,44 @@ const serverWs = expressWs(server);
 const activeSessions = {};
 
 const games = {
-  easy: SweeperGame.Create('easy'),
-  medium: SweeperGame.Create('medium'),
-  hard: SweeperGame.Create('hard'),
+  easy: new SweeperGame({ mode: 'easy' }),
+  medium: new SweeperGame({ mode: 'medium' }),
+  hard: new SweeperGame({ mode: 'hard' }),
+  extreme: new SweeperGame({ mode: 'extreme' }),
 };
 server.tickTime = () => {
   const keys = Object.keys(games);
   for (let i = 0; i < keys.length; i += 1) {
     const gameMode = keys[i];
     let game = games[gameMode];
-    game.timer -= 1;
-    console.log('mode:', gameMode);
+    game.tickTime(1);
     if (game.timer < -60) {
-      games[gameMode] = SweeperGame.Create(gameMode);
+      games[gameMode] = new SweeperGame({ mode: gameMode });
       game = games[gameMode];
       serverWs.getWss().clients.forEach((client) => {
-        console.log('client', i);
-        client.send(JSON.stringify({
-          type: WS.SEND_CURRENT_GAME,
-          data: {
-            board: game.board,
-            stats: {
-              minesLeft: game.mineCount,
-              clearLeft: game.safeCount,
-              timer: game.timer,
-              status: game.status,
-              deaths: game.deaths,
-              flagCount: game.flagCount,
+        if (client.gameMode === gameMode) {
+          client.send(JSON.stringify({
+            type: WS.SEND_CURRENT_GAME,
+            data: {
+              board: game.board,
+              stats: game.stats,
             },
-          },
-        }));
+          }));
+        }
       });
     } else {
       serverWs.getWss().clients.forEach((client) => {
         if (client.gameMode === gameMode) {
-          console.log('client', i);
           client.send(JSON.stringify({
             type: WS.SEND_GAME_STATS,
             data: {
-              stats: {
-                minesLeft: game.mineCount,
-                clearLeft: game.safeCount,
-                timer: game.timer < 0 ? 59 + game.timer : game.timer,
-                status: game.status,
-                deaths: game.deaths,
-                flagCount: game.flagCount,
-              },
+              stats: game.stats,
             },
           }));
         }
       });
     }
   }
-
   setTimeout(server.tickTime, T.SECOND);
 };
 server.tickTime();
@@ -95,7 +80,7 @@ server.post('/session', (req, res) => {
     .then(assert(userIsValid))
     .then((validUser) => {
       const clientUser = { ...validUser, hash: undefined, _id: undefined };
-      activeSessions[sessionOwner] = Date.now() + T.HOUR;
+      activeSessions[session] = { id: sessionOwner, player: clientUser, expires: Date.now() + T.HOUR };
       res.status(200).send(JSON.stringify(clientUser));
     })
     .catch(() => {
@@ -125,7 +110,7 @@ server.post('/login', (req, res) => {
         expires: newExpires,
       });
       const clientUser = { ...validUser, hash: undefined, _id: undefined };
-      activeSessions[sessionOwner] = Date.now() + T.HOUR;
+      activeSessions[newUuid] = { id: sessionOwner, player: clientUser, expires: Date.now() + T.HOUR };
       res.status(200).send(JSON.stringify({ user: clientUser, session: newUuid }));
     })
     .catch(() => {
@@ -138,15 +123,16 @@ server.ws('/game/:mode', (ws, req) => {
   ws.gameMode = gameMode;
   ws.on('message', (msgStr) => {
     console.log('msgStr:', msgStr);
-    console.log('string msgStr:', JSON.stringify(msgStr));
     const { type, data, session } = JSON.parse(msgStr);
-    if (activeSessions[session] < Date.now()) {
-      if (db.checkSession(session) === undefined) {
+    if (activeSessions[session].expires < Date.now()) {
+      console.log('session expired, checking database')
+      if (db.checkSession(activeSessions[session].id) === undefined) {
+        console.log('db session expired, deleting session');
         ws.close();
         delete activeSessions[session];
         return;
       }
-      activeSessions[session] = Date.now() + T.HOUR;
+      activeSessions[session].expires = Date.now() + T.HOUR;
     }
     switch (type) {
       // WebSocket Message Types
@@ -156,25 +142,20 @@ server.ws('/game/:mode', (ws, req) => {
         break;
 
       case WS.REQ_CURRENT_GAME:
+        games[gameMode].addPlayer(activeSessions[session].player);
         ws.send(JSON.stringify({
           type: WS.SEND_CURRENT_GAME,
           data: {
-            board: games[gameMode].getVisibleBoard(),
-            stats: {
-              minesLeft: games[gameMode].mineCount,
-              clearLeft: games[gameMode].safeCount,
-              status: games[gameMode].status,
-              timer: games[gameMode].timer,
-              deaths: games[gameMode].deaths,
-              flagCount: games[gameMode].flagCount,
-            },
+            board: games[gameMode].visibleBoard,
+            stats: games[gameMode].stats,
           },
         }));
         break;
 
       case WS.REQ_SWEEP:
         // eslint-disable-next-line no-case-declarations
-        const { spaces } = games[gameMode].sweepPosition(data.y, data.x, data.player);
+        const { spaces } = games[gameMode].sweepPosition(data.y, data.x, activeSessions[session].player.name);
+        console.log(spaces)
         if (spaces.length > 0) {
           serverWs.getWss().clients.forEach((client) => {
             if (client.gameMode === gameMode) {
@@ -182,14 +163,7 @@ server.ws('/game/:mode', (ws, req) => {
                 type: WS.SEND_SWEEP_RESULT,
                 data: {
                   spaces,
-                  stats: {
-                    minesLeft: games[gameMode].mineCount,
-                    clearLeft: games[gameMode].safeCount,
-                    status: games[gameMode].status,
-                    timer: games[gameMode].timer,
-                    deaths: games[gameMode].deaths,
-                    flagCount: games[gameMode].flagCount,
-                  },
+                  stats: games[gameMode].stats,
                 },
               }));
             }
@@ -207,14 +181,7 @@ server.ws('/game/:mode', (ws, req) => {
                 type: WS.SEND_FLAG_RESULT,
                 data: {
                   spaces: [{ x: data.x, y: data.y, space: -2 }],
-                  stats: {
-                    minesLeft: games[gameMode].mineCount,
-                    clearLeft: games[gameMode].safeCount,
-                    status: games[gameMode].status,
-                    timer: games[gameMode].timer,
-                    deaths: games[gameMode].deaths,
-                    flagCount: games[gameMode].flagCount,
-                  },
+                  stats: games[gameMode].stats,
                 },
               }));
             }

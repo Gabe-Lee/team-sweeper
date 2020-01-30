@@ -8,6 +8,17 @@ module.exports.TIME = {
   YEAR: 31536000000,
 };
 
+module.exports.Matrix = (size, value = undefined) => {
+  const output = [];
+  for (let y = 0; y < size; y += 1) {
+    output[y] = [];
+    for (let x = 0; x < size; x += 1) {
+      output[y].push(value);
+    }
+  }
+  return output;
+};
+
 module.exports.assert = (assertion) => (value) => (
   assertion(value) ? Promise.resolve(value) : Promise.reject(value)
 );

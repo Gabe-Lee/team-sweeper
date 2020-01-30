@@ -2,11 +2,10 @@
 import { ACTION } from '../actions';
 
 const updateArray = (array, updates) => {
-
   const newArray = array.slice();
   for (const update of updates) {
-    console.log('coord:', update.y, update.x, 'set to:', update.space);
-    newArray[update.y][update.x] = update.space;
+    console.log('coord:', update.y, update.x, 'set to:', update.value);
+    newArray[update.y][update.x] = update.value;
   }
   return newArray;
 };

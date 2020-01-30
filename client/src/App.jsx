@@ -13,7 +13,7 @@ import WS from '../../server/actions';
 import {
   createWebSocket, setBoard, updateBoard, updateStats, setPlayer, setSessionAttempted, setGameJoined,
 } from './redux/actions';
-import { FLAGS } from '../../server/game';
+import { STATUS } from '../../server/game_logic/Game';
 
 const App = () => {
   const [mounted, setMounted] = useState(false);
@@ -25,7 +25,7 @@ const App = () => {
     minesLeft, clearLeft, timer, status, deaths, flagCount,
   } = useSelector((store) => store.stats);
   const webSocket = useSelector((store) => store.webSocket);
-  const { gameJoined } = useSelector((store) => store.login);
+  const { gameJoined, session } = useSelector((store) => store.login);
 
   const dispatch = useDispatch();
 
@@ -34,7 +34,8 @@ const App = () => {
     const [y, x] = utils.getCoordinates(event);
     webSocket.send(JSON.stringify({
       type: WS.REQ_SWEEP,
-      data: { y, x, player: player.name },
+      session,
+      data: { y, x },
     }));
   });
 
@@ -43,7 +44,8 @@ const App = () => {
     const [y, x] = utils.getCoordinates(event);
     webSocket.send(JSON.stringify({
       type: WS.REQ_FLAG,
-      data: { y, x, player: player.name },
+      session,
+      data: { y, x },
     }));
   });
 
@@ -51,13 +53,13 @@ const App = () => {
     const newWebSocket = new WebSocket(url);
     newWebSocket.onmessage = (event) => {
       const { type, data } = JSON.parse(event.data);
+      console.log(type, data)
       switch (type) {
         case WS.SEND_CURRENT_GAME:
           dispatch(setBoard(data.board));
           dispatch(updateStats(data.stats));
           break;
         case WS.SEND_SWEEP_RESULT:
-          if (data.died === player.name) data.stats.status |= FLAGS.DEAD;
           dispatch(updateBoard(data.spaces));
           dispatch(updateStats(data.stats));
           break;
@@ -78,6 +80,7 @@ const App = () => {
     newWebSocket.onopen = () => {
       newWebSocket.send(JSON.stringify({
         type: WS.REQ_CURRENT_GAME,
+        session,
       }));
       console.log('sending message to: ', `${server.env.SOCKET}/game`, 'with message: ', WS.REQ_CURRENT_GAME);
       dispatch(setGameJoined(true));
@@ -109,15 +112,8 @@ const App = () => {
           : gameJoined ? (
             <>
               <div className="game-holder">
-                <StatusBoard
-                  mineCount={minesLeft}
-                  safeCount={clearLeft}
-                  timer={timer}
-                  deaths={deaths}
-                  status={status}
-                  flags={flagCount}
-                />
-                <Board board={board} onSpaceClick={sweepSpace} onSpaceFlag={flagSpace} />
+                <StatusBoard />
+                <Board onSpaceClick={sweepSpace} onSpaceFlag={flagSpace} />
               </div>
               <PlayerList playerList={playerList} />
             </>
