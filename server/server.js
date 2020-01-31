@@ -6,6 +6,7 @@ const cors = require('cors')();
 const uuidv4 = require('uuid/v4');
 const crypt = require('./crypt');
 const db = require('../database/interface.js');
+const Player = require('./game_logic/Player');
 const SweeperGame = require('./game_logic/Game');
 const { URL } = require('../env').database;
 const WS = require('./actions');
@@ -79,9 +80,9 @@ server.post('/session', (req, res) => {
     })
     .then(assert(userIsValid))
     .then((validUser) => {
-      const clientUser = { ...validUser, hash: undefined, _id: undefined };
-      activeSessions[session] = { id: sessionOwner, player: clientUser, expires: Date.now() + T.HOUR };
-      res.status(200).send(JSON.stringify(clientUser));
+      const player = new Player(validUser);
+      activeSessions[session] = { id: sessionOwner, player, expires: Date.now() + T.HOUR };
+      res.status(200).send(JSON.stringify(player));
     })
     .catch(() => {
       res.status(200).send(JSON.stringify(false));
@@ -109,9 +110,10 @@ server.post('/login', (req, res) => {
         loggedIn: true,
         expires: newExpires,
       });
-      const clientUser = { ...validUser, hash: undefined, _id: undefined };
-      activeSessions[newUuid] = { id: sessionOwner, player: clientUser, expires: Date.now() + T.HOUR };
-      res.status(200).send(JSON.stringify({ user: clientUser, session: newUuid }));
+      console.log(validUser);
+      const player = new Player(validUser);
+      activeSessions[newUuid] = { id: sessionOwner, player, expires: Date.now() + T.HOUR };
+      res.status(200).send(JSON.stringify({ user: player, session: newUuid }));
     })
     .catch(() => {
       res.status(200).send(null);
@@ -173,14 +175,15 @@ server.ws('/game/:mode', (ws, req) => {
 
       case WS.REQ_FLAG:
         // eslint-disable-next-line no-case-declarations
-        const { newFlag } = games[gameMode].flagPosition(data.y, data.x, data.player);
-        if (newFlag) {
+        const { newStatus, spaces: flagSpaces } = games[gameMode].flagPosition(data.y, data.x, activeSessions[session].player.name);
+        console.log(newStatus, flagSpaces)
+        if (newStatus) {
           serverWs.getWss().clients.forEach((client) => {
             if (client.gameMode === gameMode) {
               client.send(JSON.stringify({
                 type: WS.SEND_FLAG_RESULT,
                 data: {
-                  spaces: [{ x: data.x, y: data.y, space: -2 }],
+                  spaces: flagSpaces,
                   stats: games[gameMode].stats,
                 },
               }));

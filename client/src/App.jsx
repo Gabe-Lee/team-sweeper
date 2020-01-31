@@ -21,9 +21,6 @@ const App = () => {
   const board = useSelector((store) => store.board);
   const player = useSelector((store) => store.player);
   const playerList = useSelector((store) => store.playerList);
-  const {
-    minesLeft, clearLeft, timer, status, deaths, flagCount,
-  } = useSelector((store) => store.stats);
   const webSocket = useSelector((store) => store.webSocket);
   const { gameJoined, session } = useSelector((store) => store.login);
 
@@ -52,8 +49,8 @@ const App = () => {
   const createSocket = useCallback((url) => {
     const newWebSocket = new WebSocket(url);
     newWebSocket.onmessage = (event) => {
+
       const { type, data } = JSON.parse(event.data);
-      console.log(type, data)
       switch (type) {
         case WS.SEND_CURRENT_GAME:
           dispatch(setBoard(data.board));

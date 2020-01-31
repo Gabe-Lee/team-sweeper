@@ -122,8 +122,8 @@ class SweeperGame {
   }
 
   sweepPosition(y, x, playerName, master = false) {
-    console.log(playerName, this.activePlayers, this.activePlayers[playerName])
     if (!this.spacesCanBeModified(playerName, master)) return { spaces: [] };
+
     let spaces = [{ y, x, value: this.board[y][x] }];
     const activePlayer = this.activePlayers[playerName];
 
@@ -158,15 +158,18 @@ class SweeperGame {
   }
 
   flagPosition(y, x, playerName, master = false) {
+    console.log(this.flags)
+    console.log(this.activePlayers[playerName]);
     if (!this.spacesCanBeModified(playerName, master)) return { spaces: [] };
+    console.log('can modify spaces')
     const flagSpace = this.flags[y][x];
     const oldStatus = flagSpace.total > 0;
-    this.setOrToggleFlag(flagSpace, playerName);
+    this.setOrToggleFlag(y, x, playerName);
     const newStatus = this.flags[y][x].total > 0 !== oldStatus;
     if (newStatus) {
       this.uniqueFlags += flagSpace.total > 0 ? 1 : -1;
     }
-    return { newStatus, status: this.flags[y][x].total > 0 };
+    return { newStatus, spaces: [{ y, x, value: this.visibleBoard[y][x] }] };
   }
 
   forEachNeighbor(y, x, operation = () => { }, map = false) {
@@ -201,7 +204,7 @@ class SweeperGame {
   }
 
   gameInProgress() {
-    return this.stats.status & STATUS.IN_PROGRESS;
+    return this.stats.status === STATUS.IN_PROGRESS;
   }
 
   playerIsAlive(playerName) {
@@ -226,14 +229,16 @@ class SweeperGame {
     return sweptDict[`${y}_${x}`] !== undefined;
   }
 
-  setOrToggleFlag(flagSpace, playerName) {
-    if (flagSpace.owner[playerName] === undefined) {
-      flagSpace.owner[playerName] = true;
+  setOrToggleFlag(y, x, playerName) {
+    const flagSpace = this.flags[y][x];
+    if (flagSpace.owners[playerName] === undefined) {
+      flagSpace.owners[playerName] = true;
       flagSpace.total += 1;
     } else {
-      flagSpace.owner[playerName] = !flagSpace.owner[playerName];
-      flagSpace.total += flagSpace.owner[playerName] ? 1 : -1;
+      flagSpace.owners[playerName] = !flagSpace.owners[playerName];
+      flagSpace.total += flagSpace.owners[playerName] ? 1 : -1;
     }
+    this.visibleBoard[y][x] = flagSpace.total > 0 ? SPACE.FLAG : SPACE.UNKNOWN;
   }
 
   addPlayer(player) {
@@ -253,7 +258,7 @@ class SweeperGame {
     for (let i = 0, len = names.length; i < len; i += 1) {
       const player = this.activePlayers[names[i]];
       if (player.lives > 0) {
-        player.countTime(this.mode, duration * 1000);
+        player.countTime(this.mode, duration);
       }
     }
   }

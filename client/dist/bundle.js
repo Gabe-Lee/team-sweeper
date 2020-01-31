@@ -151,26 +151,15 @@ var App = function App() {
   var playerList = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
     return store.playerList;
   });
-
-  var _useSelector = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
-    return store.stats;
-  }),
-      minesLeft = _useSelector.minesLeft,
-      clearLeft = _useSelector.clearLeft,
-      timer = _useSelector.timer,
-      status = _useSelector.status,
-      deaths = _useSelector.deaths,
-      flagCount = _useSelector.flagCount;
-
   var webSocket = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
     return store.webSocket;
   });
 
-  var _useSelector2 = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
+  var _useSelector = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useSelector"])(function (store) {
     return store.login;
   }),
-      gameJoined = _useSelector2.gameJoined,
-      session = _useSelector2.session;
+      gameJoined = _useSelector.gameJoined,
+      session = _useSelector.session;
 
   var dispatch = Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["useDispatch"])();
   var sweepSpace = Object(react__WEBPACK_IMPORTED_MODULE_0__["useCallback"])(function (event) {
@@ -214,8 +203,6 @@ var App = function App() {
       var _JSON$parse = JSON.parse(event.data),
           type = _JSON$parse.type,
           data = _JSON$parse.data;
-
-      console.log(type, data);
 
       switch (type) {
         case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_CURRENT_GAME:
@@ -859,7 +846,6 @@ var updateArray = function updateArray(array, updates) {
   try {
     for (var _iterator = updates[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var update = _step.value;
-      console.log('coord:', update.y, update.x, 'set to:', update.value);
       newArray[update.y][update.x] = update.value;
     }
   } catch (err) {
@@ -63206,7 +63192,6 @@ function () {
     key: "sweepPosition",
     value: function sweepPosition(y, x, playerName) {
       var master = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-      console.log(playerName, this.activePlayers, this.activePlayers[playerName]);
       if (!this.spacesCanBeModified(playerName, master)) return {
         spaces: []
       };
@@ -63258,12 +63243,15 @@ function () {
     key: "flagPosition",
     value: function flagPosition(y, x, playerName) {
       var master = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      console.log(this.flags);
+      console.log(this.activePlayers[playerName]);
       if (!this.spacesCanBeModified(playerName, master)) return {
         spaces: []
       };
+      console.log('can modify spaces');
       var flagSpace = this.flags[y][x];
       var oldStatus = flagSpace.total > 0;
-      this.setOrToggleFlag(flagSpace, playerName);
+      this.setOrToggleFlag(y, x, playerName);
       var newStatus = this.flags[y][x].total > 0 !== oldStatus;
 
       if (newStatus) {
@@ -63272,7 +63260,11 @@ function () {
 
       return {
         newStatus: newStatus,
-        status: this.flags[y][x].total > 0
+        spaces: [{
+          y: y,
+          x: x,
+          value: this.visibleBoard[y][x]
+        }]
       };
     }
   }, {
@@ -63317,7 +63309,7 @@ function () {
   }, {
     key: "gameInProgress",
     value: function gameInProgress() {
-      return this.stats.status & STATUS.IN_PROGRESS;
+      return this.stats.status === STATUS.IN_PROGRESS;
     }
   }, {
     key: "playerIsAlive",
@@ -63349,14 +63341,18 @@ function () {
     }
   }, {
     key: "setOrToggleFlag",
-    value: function setOrToggleFlag(flagSpace, playerName) {
-      if (flagSpace.owner[playerName] === undefined) {
-        flagSpace.owner[playerName] = true;
+    value: function setOrToggleFlag(y, x, playerName) {
+      var flagSpace = this.flags[y][x];
+
+      if (flagSpace.owners[playerName] === undefined) {
+        flagSpace.owners[playerName] = true;
         flagSpace.total += 1;
       } else {
-        flagSpace.owner[playerName] = !flagSpace.owner[playerName];
-        flagSpace.total += flagSpace.owner[playerName] ? 1 : -1;
+        flagSpace.owners[playerName] = !flagSpace.owners[playerName];
+        flagSpace.total += flagSpace.owners[playerName] ? 1 : -1;
       }
+
+      this.visibleBoard[y][x] = flagSpace.total > 0 ? SPACE.FLAG : SPACE.UNKNOWN;
     }
   }, {
     key: "addPlayer",
@@ -63384,7 +63380,7 @@ function () {
         var player = this.activePlayers[names[i]];
 
         if (player.lives > 0) {
-          player.countTime(this.mode, duration * 1000);
+          player.countTime(this.mode, duration);
         }
       }
     }
@@ -63408,8 +63404,10 @@ module.exports.SPACE = SPACE;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-module.exports = function Player(name) {
-  var modes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+module.exports = function Player(_ref) {
+  var name = _ref.name,
+      _ref$modes = _ref.modes,
+      modes = _ref$modes === void 0 ? {} : _ref$modes;
 
   _classCallCheck(this, Player);
 
