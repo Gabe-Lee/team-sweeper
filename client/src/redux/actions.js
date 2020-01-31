@@ -1,6 +1,8 @@
 export const ACTION = {
   SET_BOARD: 'SET_BOARD',
   UPDATE_BOARD: 'UPDATE_BOARD',
+  SET_MY_FLAGS: 'SET_MY_FLAGS',
+  UPDATE_FLAGS: 'UPDATE_FLAGS',
   SET_STATS: 'SET_STATS',
   UPDATE_STATS: 'UPDATE_STATS',
   SET_PLAYER: 'SET_PLAYER',
@@ -19,6 +21,14 @@ export const setBoard = (board) => ({
 
 export const updateBoard = (spaces) => ({
   type: ACTION.UPDATE_BOARD, spaces,
+});
+
+export const updateFlags = (flag) => ({
+  type: ACTION.UPDATE_FLAGS, flag,
+});
+
+export const setMyFlags = (flag) => ({
+  type: ACTION.SET_MY_FLAGS, flag,
 });
 
 export const setStats = (stats) => ({

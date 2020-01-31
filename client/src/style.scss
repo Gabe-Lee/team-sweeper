@@ -1,7 +1,8 @@
 $MINE_COLOR: #111;
 $FLAG_COLOR: #f00;
+$MY_FLAG_COLOR: #f00;
 $ALIVE_COLOR: green;
-$DEAD_COLOR: maroon;
+$DEAD_COLOR: #b00;
 $NEAR_COLOR_1: #00c;
 $NEAR_COLOR_2: #069;
 $NEAR_COLOR_3: #096;
@@ -142,6 +143,8 @@ $MAX_WIDTH: 1200px;
           .symbol {
             font-weight: bold;
             font-family: "Noto Sans";
+            &.mines_-5 { color: $MY_FLAG_COLOR }
+            &.mines_-4 { color: $MY_FLAG_COLOR }
             &.mines_-3 { color: $MINE_COLOR }
             &.mines_-2 { color: $FLAG_COLOR }
             &.mines_-1 { color: none }

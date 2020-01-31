@@ -3,7 +3,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-bitwise */
 const { MersenneTwister19937, bool } = require('random-js');
-const { Matrix } = require('../utils');
+const { Matrix, MinMax } = require('../utils');
 const ActivePlayer = require('./ActivePlayer');
 
 const randEngine = MersenneTwister19937.autoSeed();
@@ -55,9 +55,9 @@ class SweeperGame {
       status: STATUS.IN_PROGRESS,
     };
     this.size = Math.max(1, Math.min(50, size));
-    this.board = Matrix(this.size, 0);
-    this.visibleBoard = Matrix(this.size, -1);
-    this.flags = Matrix(this.size, { owners: {}, total: 0 });
+    this.board = Matrix(this.size, () => 0);
+    this.visibleBoard = Matrix(this.size, () => -1);
+    this.flags = Matrix(this.size, () => ({ owners: {}, total: 0 }));
     this.uniqueFlags = 0;
     this.activePlayers = {};
     this.randDist = bool(density, 100);
@@ -81,10 +81,12 @@ class SweeperGame {
 
     // Choose a random starting clear space,
     // prefering spaces with the lowest surrounding mines
-    const preferedStarts = Array(9).fill([]);
+    const preferedStarts = [[], [], [], [], [], [], [], [], []];
     this.forEachSpace((y, x) => {
       if (this.board[y][x] >= 0) {
+        if (y === 0 && x === 0) console.log(y, x, 'surrounding mines:', this.board[y][x])
         preferedStarts[this.board[y][x]].push([y, x]);
+        if (y === 0 && x === 0) console.log(preferedStarts)
       }
     });
     let start = [0, 0];
@@ -158,18 +160,20 @@ class SweeperGame {
   }
 
   flagPosition(y, x, playerName, master = false) {
-    console.log(this.flags)
-    console.log(this.activePlayers[playerName]);
+
     if (!this.spacesCanBeModified(playerName, master)) return { spaces: [] };
     console.log('can modify spaces')
     const flagSpace = this.flags[y][x];
-    const oldStatus = flagSpace.total > 0;
+
+    const oldTotal = flagSpace.total;
     this.setOrToggleFlag(y, x, playerName);
-    const newStatus = this.flags[y][x].total > 0 !== oldStatus;
-    if (newStatus) {
-      this.uniqueFlags += flagSpace.total > 0 ? 1 : -1;
+    console.log(flagSpace)
+    const newTotal = flagSpace.total;
+    const delta = MinMax(-1, newTotal - oldTotal, 1);
+    if (delta) {
+      this.uniqueFlags += delta;
     }
-    return { newStatus, spaces: [{ y, x, value: this.visibleBoard[y][x] }] };
+    return { flag: { y, x, isFlagged: flagSpace.total > 0 } };
   }
 
   forEachNeighbor(y, x, operation = () => { }, map = false) {
@@ -233,10 +237,10 @@ class SweeperGame {
     const flagSpace = this.flags[y][x];
     if (flagSpace.owners[playerName] === undefined) {
       flagSpace.owners[playerName] = true;
-      flagSpace.total += 1;
+      flagSpace.total = Object.keys(flagSpace.owners).length;
     } else {
-      flagSpace.owners[playerName] = !flagSpace.owners[playerName];
-      flagSpace.total += flagSpace.owners[playerName] ? 1 : -1;
+      delete flagSpace.owners[playerName];
+      flagSpace.total = Object.keys(flagSpace.owners).length;
     }
     this.visibleBoard[y][x] = flagSpace.total > 0 ? SPACE.FLAG : SPACE.UNKNOWN;
   }

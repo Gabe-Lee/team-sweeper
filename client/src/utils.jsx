@@ -5,7 +5,7 @@ export default {
     return (
       !e
       || !e.target
-      || e.target.disabled
+      || e.target.disabled === true
       || !e.target.dataset
       || !e.target.dataset.coord
     );

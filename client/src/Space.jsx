@@ -9,10 +9,10 @@ export default class Space extends PureComponent {
         className={`space mines_${mines}`}
         alt="value"
         type="button"
-        disabled={mines >= 0 || mines < -2}
+        disabled={mines >= 0 || mines === -3}
         data-coord={coord}
       >
-        <span className={`symbol mines_${mines}`}>{Space.getSymbol(mines)}</span>
+        <div className={`symbol mines_${mines}`} data-coord={coord}>{Space.getSymbol(mines)}</div>
       </button>
     );
   }

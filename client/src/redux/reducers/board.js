@@ -1,12 +1,19 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-restricted-syntax */
 import { ACTION } from '../actions';
 
-const updateArray = (array, updates) => {
-  const newArray = array.slice();
+const updateBoard = (board, updates) => {
+  const newBoard = board.slice();
   for (const update of updates) {
-    newArray[update.y][update.x] = update.value;
+    newBoard[update.y][update.x] = update.value;
   }
-  return newArray;
+  return newBoard;
+};
+
+const updateFlags = (board, flag, isMine = false) => {
+  const newBoard = board.slice();
+  newBoard[flag.y][flag.x] = flag.isFlagged ? -2 : -1;
+  return newBoard;
 };
 
 const board = (state = [[]], action) => {
@@ -14,7 +21,11 @@ const board = (state = [[]], action) => {
     case ACTION.SET_BOARD:
       return action.board;
     case ACTION.UPDATE_BOARD:
-      return updateArray(state, action.spaces);
+      return updateBoard(state, action.spaces);
+    case ACTION.UPDATE_FLAGS:
+      return updateFlags(state, action.flag);
+    case ACTION.SET_MY_FLAGS:
+      return updateFlags(state, action.flag, true);
     default:
       return state;
   }

@@ -217,7 +217,7 @@ var App = function App() {
 
         case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_FLAG_RESULT:
           dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateStats"])(data.stats));
-          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateBoard"])(data.spaces));
+          dispatch(Object(_redux_actions__WEBPACK_IMPORTED_MODULE_10__["updateFlags"])(data.flag));
           break;
 
         case _server_actions__WEBPACK_IMPORTED_MODULE_9___default.a.SEND_GAME_STATS:
@@ -601,10 +601,11 @@ function (_PureComponent) {
         className: "space mines_".concat(mines),
         alt: "value",
         type: "button",
-        disabled: mines >= 0 || mines < -2,
+        disabled: mines >= 0 || mines === -3,
         "data-coord": coord
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
-        className: "symbol mines_".concat(mines)
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "symbol mines_".concat(mines),
+        "data-coord": coord
       }, Space.getSymbol(mines)));
     }
   }]);
@@ -718,7 +719,7 @@ react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render(react__WEBPACK_IMPORTED_
 /*!*************************************!*\
   !*** ./client/src/redux/actions.js ***!
   \*************************************/
-/*! exports provided: ACTION, setBoard, updateBoard, setStats, updateStats, setPlayer, setPlayerList, createWebSocket, setSessionAttempted, setSession, setLoggedInStatus, setLoginMessage, setGameJoined */
+/*! exports provided: ACTION, setBoard, updateBoard, updateFlags, setMyFlags, setStats, updateStats, setPlayer, setPlayerList, createWebSocket, setSessionAttempted, setSession, setLoggedInStatus, setLoginMessage, setGameJoined */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -726,6 +727,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ACTION", function() { return ACTION; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setBoard", function() { return setBoard; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateBoard", function() { return updateBoard; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateFlags", function() { return updateFlags; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setMyFlags", function() { return setMyFlags; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setStats", function() { return setStats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateStats", function() { return updateStats; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setPlayer", function() { return setPlayer; });
@@ -739,6 +742,8 @@ __webpack_require__.r(__webpack_exports__);
 var ACTION = {
   SET_BOARD: 'SET_BOARD',
   UPDATE_BOARD: 'UPDATE_BOARD',
+  SET_MY_FLAGS: 'SET_MY_FLAGS',
+  UPDATE_FLAGS: 'UPDATE_FLAGS',
   SET_STATS: 'SET_STATS',
   UPDATE_STATS: 'UPDATE_STATS',
   SET_PLAYER: 'SET_PLAYER',
@@ -760,6 +765,18 @@ var updateBoard = function updateBoard(spaces) {
   return {
     type: ACTION.UPDATE_BOARD,
     spaces: spaces
+  };
+};
+var updateFlags = function updateFlags(flag) {
+  return {
+    type: ACTION.UPDATE_FLAGS,
+    flag: flag
+  };
+};
+var setMyFlags = function setMyFlags(flag) {
+  return {
+    type: ACTION.SET_MY_FLAGS,
+    flag: flag
   };
 };
 var setStats = function setStats(stats) {
@@ -834,11 +851,13 @@ var setGameJoined = function setGameJoined(status) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _actions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions */ "./client/src/redux/actions.js");
+/* eslint-disable no-nested-ternary */
+
 /* eslint-disable no-restricted-syntax */
 
 
-var updateArray = function updateArray(array, updates) {
-  var newArray = array.slice();
+var updateBoard = function updateBoard(board, updates) {
+  var newBoard = board.slice();
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
   var _iteratorError = undefined;
@@ -846,7 +865,7 @@ var updateArray = function updateArray(array, updates) {
   try {
     for (var _iterator = updates[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var update = _step.value;
-      newArray[update.y][update.x] = update.value;
+      newBoard[update.y][update.x] = update.value;
     }
   } catch (err) {
     _didIteratorError = true;
@@ -863,7 +882,14 @@ var updateArray = function updateArray(array, updates) {
     }
   }
 
-  return newArray;
+  return newBoard;
+};
+
+var updateFlags = function updateFlags(board, flag) {
+  var isMine = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+  var newBoard = board.slice();
+  newBoard[flag.y][flag.x] = flag.isFlagged ? -2 : -1;
+  return newBoard;
 };
 
 var board = function board() {
@@ -875,7 +901,13 @@ var board = function board() {
       return action.board;
 
     case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].UPDATE_BOARD:
-      return updateArray(state, action.spaces);
+      return updateBoard(state, action.spaces);
+
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].UPDATE_FLAGS:
+      return updateFlags(state, action.flag);
+
+    case _actions__WEBPACK_IMPORTED_MODULE_0__["ACTION"].SET_MY_FLAGS:
+      return updateFlags(state, action.flag, true);
 
     default:
       return state;
@@ -1119,7 +1151,7 @@ __webpack_require__.r(__webpack_exports__);
     return window.localStorage.setItem('session', uuid);
   },
   spaceClickInvalid: function spaceClickInvalid(e) {
-    return !e || !e.target || e.target.disabled || !e.target.dataset || !e.target.dataset.coord;
+    return !e || !e.target || e.target.disabled === true || !e.target.dataset || !e.target.dataset.coord;
   },
   getCoordinates: function getCoordinates(e) {
     return e.target.dataset.coord.split('_').map(function (num) {
@@ -63025,7 +63057,8 @@ var _require = __webpack_require__(/*! random-js */ "./node_modules/.pnpm/regist
     bool = _require.bool;
 
 var _require2 = __webpack_require__(/*! ../utils */ "./server/utils.js"),
-    Matrix = _require2.Matrix;
+    Matrix = _require2.Matrix,
+    MinMax = _require2.MinMax;
 
 var ActivePlayer = __webpack_require__(/*! ./ActivePlayer */ "./server/game_logic/ActivePlayer.js");
 
@@ -63095,11 +63128,17 @@ function () {
       status: STATUS.IN_PROGRESS
     };
     this.size = Math.max(1, Math.min(50, size));
-    this.board = Matrix(this.size, 0);
-    this.visibleBoard = Matrix(this.size, -1);
-    this.flags = Matrix(this.size, {
-      owners: {},
-      total: 0
+    this.board = Matrix(this.size, function () {
+      return 0;
+    });
+    this.visibleBoard = Matrix(this.size, function () {
+      return -1;
+    });
+    this.flags = Matrix(this.size, function () {
+      return {
+        owners: {},
+        total: 0
+      };
     });
     this.uniqueFlags = 0;
     this.activePlayers = {};
@@ -63128,10 +63167,14 @@ function () {
     }); // Choose a random starting clear space,
     // prefering spaces with the lowest surrounding mines
 
-    var preferedStarts = Array(9).fill([]);
+    var preferedStarts = [[], [], [], [], [], [], [], [], []];
     this.forEachSpace(function (y, x) {
       if (_this.board[y][x] >= 0) {
+        if (y === 0 && x === 0) console.log(y, x, 'surrounding mines:', _this.board[y][x]);
+
         preferedStarts[_this.board[y][x]].push([y, x]);
+
+        if (y === 0 && x === 0) console.log(preferedStarts);
       }
     });
     var start = [0, 0];
@@ -63243,28 +63286,27 @@ function () {
     key: "flagPosition",
     value: function flagPosition(y, x, playerName) {
       var master = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-      console.log(this.flags);
-      console.log(this.activePlayers[playerName]);
       if (!this.spacesCanBeModified(playerName, master)) return {
         spaces: []
       };
       console.log('can modify spaces');
       var flagSpace = this.flags[y][x];
-      var oldStatus = flagSpace.total > 0;
+      var oldTotal = flagSpace.total;
       this.setOrToggleFlag(y, x, playerName);
-      var newStatus = this.flags[y][x].total > 0 !== oldStatus;
+      console.log(flagSpace);
+      var newTotal = flagSpace.total;
+      var delta = MinMax(-1, newTotal - oldTotal, 1);
 
-      if (newStatus) {
-        this.uniqueFlags += flagSpace.total > 0 ? 1 : -1;
+      if (delta) {
+        this.uniqueFlags += delta;
       }
 
       return {
-        newStatus: newStatus,
-        spaces: [{
+        flag: {
           y: y,
           x: x,
-          value: this.visibleBoard[y][x]
-        }]
+          isFlagged: flagSpace.total > 0
+        }
       };
     }
   }, {
@@ -63346,10 +63388,10 @@ function () {
 
       if (flagSpace.owners[playerName] === undefined) {
         flagSpace.owners[playerName] = true;
-        flagSpace.total += 1;
+        flagSpace.total = Object.keys(flagSpace.owners).length;
       } else {
-        flagSpace.owners[playerName] = !flagSpace.owners[playerName];
-        flagSpace.total += flagSpace.owners[playerName] ? 1 : -1;
+        delete flagSpace.owners[playerName];
+        flagSpace.total = Object.keys(flagSpace.owners).length;
       }
 
       this.visibleBoard[y][x] = flagSpace.total > 0 ? SPACE.FLAG : SPACE.UNKNOWN;
@@ -63464,18 +63506,26 @@ module.exports.TIME = {
 };
 
 module.exports.Matrix = function (size) {
-  var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+  var valueFactory = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
+    return undefined;
+  };
   var output = [];
 
   for (var y = 0; y < size; y += 1) {
     output[y] = [];
 
     for (var x = 0; x < size; x += 1) {
-      output[y].push(value);
+      output[y].push(valueFactory());
     }
   }
 
   return output;
+};
+
+module.exports.MinMax = function (min, value, max) {
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
 };
 
 module.exports.assert = function (assertion) {

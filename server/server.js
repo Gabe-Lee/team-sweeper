@@ -175,21 +175,19 @@ server.ws('/game/:mode', (ws, req) => {
 
       case WS.REQ_FLAG:
         // eslint-disable-next-line no-case-declarations
-        const { newStatus, spaces: flagSpaces } = games[gameMode].flagPosition(data.y, data.x, activeSessions[session].player.name);
-        console.log(newStatus, flagSpaces)
-        if (newStatus) {
-          serverWs.getWss().clients.forEach((client) => {
-            if (client.gameMode === gameMode) {
-              client.send(JSON.stringify({
-                type: WS.SEND_FLAG_RESULT,
-                data: {
-                  spaces: flagSpaces,
-                  stats: games[gameMode].stats,
-                },
-              }));
-            }
-          });
-        }
+        const { flag } = games[gameMode].flagPosition(data.y, data.x, activeSessions[session].player.name);
+        serverWs.getWss().clients.forEach((client) => {
+          if (client.gameMode === gameMode) {
+            client.send(JSON.stringify({
+              type: WS.SEND_FLAG_RESULT,
+              data: {
+                flag,
+                stats: games[gameMode].stats,
+              },
+            }));
+          }
+        });
+
         break;
 
       default:

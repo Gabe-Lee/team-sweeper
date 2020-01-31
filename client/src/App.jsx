@@ -11,7 +11,7 @@ import PlayerList from './PlayerList';
 import StatusBoard from './StatusBoard';
 import WS from '../../server/actions';
 import {
-  createWebSocket, setBoard, updateBoard, updateStats, setPlayer, setSessionAttempted, setGameJoined,
+  createWebSocket, setBoard, updateBoard, updateStats, setPlayer, setSessionAttempted, setGameJoined, updateFlags, setMyFlags
 } from './redux/actions';
 import { STATUS } from '../../server/game_logic/Game';
 
@@ -62,7 +62,7 @@ const App = () => {
           break;
         case WS.SEND_FLAG_RESULT:
           dispatch(updateStats(data.stats));
-          dispatch(updateBoard(data.spaces));
+          dispatch(updateFlags(data.flag));
           break;
         case WS.SEND_GAME_STATS:
           dispatch(updateStats(data.stats));

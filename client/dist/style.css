@@ -81,7 +81,7 @@
   color: green;
 }
 #app-root .app .player-list .player-row .status.dead {
-  color: maroon;
+  color: #b00;
 }
 #app-root .app .player-list .player-row .score {
   text-align: right;
@@ -113,7 +113,7 @@
   border: 2px outset lime;
 }
 #app-root .app .game-holder .board .space.mines_-3 {
-  background-color: maroon;
+  background-color: #b00;
 }
 #app-root .app .game-holder .board .space.mines_-2, #app-root .app .game-holder .board .space.mines_-1 {
   background-color: #ccc;
@@ -121,6 +121,12 @@
 #app-root .app .game-holder .board .space .symbol {
   font-weight: bold;
   font-family: "Noto Sans";
+}
+#app-root .app .game-holder .board .space .symbol.mines_-5 {
+  color: #f00;
+}
+#app-root .app .game-holder .board .space .symbol.mines_-4 {
+  color: #f00;
 }
 #app-root .app .game-holder .board .space .symbol.mines_-3 {
   color: #111;
